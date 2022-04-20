@@ -1,0 +1,11 @@
+[Unit]
+Description=A DynDNS client written in go
+
+[Service]
+Type=simple
+Restart=on-failure
+ExecStart=/usr/bin/dyngo
+StandardOutput=append:/var/log/dyngo.log
+
+[Install]
+WantedBy=multi-user.target
