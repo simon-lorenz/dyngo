@@ -1,0 +1,10 @@
+{
+  "IPv4CheckUrl": "https://checkipv4.dedyn.io",
+  "IPv6CheckUrl": "https://checkipv6.dedyn.io",
+  "Username": "",
+  "Token": "",
+  "Domains": [
+    ""
+  ],
+  "Cron": "* *5 * * * *"
+}
