@@ -12,17 +12,44 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var IPv4CheckUrl string
-var IPv4Enabled bool
-var IPv6CheckUrl string
-var IPv6Enabled bool
-var Username string
-var Token string
-var Domains []string
+type HostConfiguration struct {
+	Host string `json:"host" validate:"required,hostname"`
+	V4   bool   `json:"v4"`
+	V6   bool   `json:"v6"`
+}
+
+type ServiceConfiguration struct {
+	Username string              `json:"username" validate:"required"`
+	Password string              `json:"password" validate:"required"`
+	Hosts    []HostConfiguration `json:"hosts" validate:"required,dive"`
+}
+
+type ServicesConfiguration struct {
+	Desec ServiceConfiguration `json:"desec" validate:"required_without_all"`
+}
+
+type IPv4AddressDetectionConfiguration struct {
+	Web string `json:"web" validate:"required,url"`
+}
+
+type IPv6AddressDetectionConfiguration struct {
+	Web string `json:"web" validate:"required,url"`
+}
+
+type DyngoConfiguration struct {
+	Cron                 string                            `json:"cron" validate:"required"`
+	Services             ServicesConfiguration             `json:"services" validate:"required,dive"`
+	IPv4AddressDetection IPv4AddressDetectionConfiguration `json:"v4AddressDetection" validate:"required"`
+	IPv6AddressDetection IPv6AddressDetectionConfiguration `json:"v6AddressDetection" validate:"required"`
+}
+
 var Cron string
+var Services ServicesConfiguration
+var IPv4AddressDetection IPv4AddressDetectionConfiguration
+var IPv6AddressDetection IPv6AddressDetectionConfiguration
 
 func getConfigurationFileAsBytes() []byte {
-	var pathToConfiguration = "/etc/dyngo/config.json"
+	var pathToConfiguration = "/etc/dyngo/config.jsonc"
 
 	if _, err := os.Stat(pathToConfiguration); errors.Is(err, os.ErrNotExist) {
 		logger.Error.Println("Configuration file " + pathToConfiguration + " missing!")
@@ -45,16 +72,7 @@ func getConfigurationFileAsBytes() []byte {
 }
 
 func Parse() {
-	type ConfigurationJson struct {
-		IPv4CheckUrl string   `validate:"url,required_without=IPv6CheckUrl"`
-		IPv6CheckUrl string   `validate:"url,required_without=IPv4CheckUrl"`
-		Username     string   `validate:"required"`
-		Token        string   `validate:"required"`
-		Domains      []string `validate:"required,dive,required,hostname"`
-		Cron         string   `validate:"required"`
-	}
-
-	var config ConfigurationJson
+	var config DyngoConfiguration
 
 	json.Unmarshal(jsonc.ToJSON(getConfigurationFileAsBytes()), &config)
 
@@ -72,12 +90,8 @@ func Parse() {
 		os.Exit(1)
 	}
 
-	IPv4CheckUrl = config.IPv4CheckUrl
-	IPv4Enabled = config.IPv4CheckUrl != ""
-	IPv6CheckUrl = config.IPv6CheckUrl
-	IPv6Enabled = config.IPv6CheckUrl != ""
-	Username = config.Username
-	Token = config.Token
-	Domains = config.Domains
 	Cron = config.Cron
+	Services = config.Services
+	IPv4AddressDetection = config.IPv4AddressDetection
+	IPv6AddressDetection = config.IPv6AddressDetection
 }

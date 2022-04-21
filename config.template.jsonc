@@ -1,0 +1,22 @@
+{
+  "cron": "* *5 * * * *",
+  "services": {
+    "desec": {
+      "username": "test",
+      "password": "123",
+      "hosts": [
+        {
+          "host": "test.test.de",
+          "v4": true,
+          "v6": false
+        }
+      ]
+    }
+  },
+  "v4AddressDetection": {
+    "web": "https://checkipv4.dedyn.io"
+  },
+  "v6AddressDetection": {
+    "web": "https://checkipv6.dedyn.io"
+  }
+}

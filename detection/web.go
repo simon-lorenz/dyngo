@@ -1,4 +1,4 @@
-package helper
+package detection
 
 import (
 	"dyngo/config"
@@ -8,11 +8,11 @@ import (
 )
 
 func GetIPv4() string {
-	return getIpAddressFromExternalService(config.IPv4CheckUrl)
+	return getIpAddressFromExternalService(config.IPv4AddressDetection.Web)
 }
 
 func GetIPv6() string {
-	return getIpAddressFromExternalService(config.IPv6CheckUrl)
+	return getIpAddressFromExternalService(config.IPv6AddressDetection.Web)
 }
 
 func getIpAddressFromExternalService(url string) string {

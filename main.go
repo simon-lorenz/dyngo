@@ -3,10 +3,9 @@ package main
 import (
 	"dyngo/clients"
 	"dyngo/config"
-	"dyngo/helper"
+	"dyngo/detection"
 	"dyngo/logger"
 	"fmt"
-	"os"
 
 	"github.com/robfig/cron/v3"
 )
@@ -28,11 +27,6 @@ func main() {
 
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 
-	if !config.IPv4Enabled && !config.IPv6Enabled {
-		logger.Error.Println("Neither IPv4 nor IPv6 updates are enabled.")
-		os.Exit(1)
-	}
-
 	c.AddFunc(config.Cron, updateDynDNS)
 
 	updateDynDNS() // Run immediatly
@@ -41,26 +35,27 @@ func main() {
 }
 
 func updateDynDNS() {
+	upstreamIPv4 := detection.GetIPv4()
+	// upstreamIPv6 := detection.GetIPv6()
+	upstreamIPv6 := ""
 
-	services := []clients.DynDnsService{clients.NewDesec()}
+	// TODO: Register active services of configuration file and loop over them
 
-	if config.IPv4Enabled {
-		var upstreamIPv4 = helper.GetIPv4()
+	if config.Services.Desec.Username != "" { // TODO: Normally I would check for nil but this doesn't work
+		for _, host := range config.Services.Desec.Hosts {
+			desec := clients.NewDesec(config.Services.Desec.Username, config.Services.Desec.Password)
 
-		if upstreamIPv4 != currentIPv4 {
-			logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
-			services[0].UpdateIPv4(upstreamIPv4)
-			currentIPv4 = upstreamIPv4
-		}
-	}
+			if host.V4 && currentIPv4 != upstreamIPv4 {
+				logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
+				desec.UpdateIPv4(detection.GetIPv4(), host.Host)
+				currentIPv4 = upstreamIPv4
+			}
 
-	if config.IPv6Enabled {
-		var upstreamIPv6 = helper.GetIPv6()
-
-		if upstreamIPv6 != currentIPv6 {
-			logger.Info.Printf("Detected change in IP6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
-			services[0].UpdateIPv6(upstreamIPv6)
-			currentIPv6 = upstreamIPv6
+			if host.V6 && currentIPv6 != upstreamIPv6 {
+				logger.Info.Printf("Detected change in IP6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
+				desec.UpdateIPv6(detection.GetIPv6(), host.Host)
+				currentIPv6 = upstreamIPv6
+			}
 		}
 	}
 }

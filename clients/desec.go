@@ -1,44 +1,37 @@
 package clients
 
 import (
-	"dyngo/config"
 	"dyngo/logger"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
-type DynDnsService interface {
-	UpdateIPv4(string)
-	UpdateIPv6(string)
-}
-
 type desec struct {
-	service     string
-	webhookIPv4 string
-	webhookIPv6 string
+	service  string
+	username string
+	password string
 }
 
-func NewDesec() desec {
+func NewDesec(username, password string) desec {
 	return desec{
-		service:     "desec.io",
-		webhookIPv4: "https://update.dedyn.io",
-		webhookIPv6: "https://update6.dedyn.io",
+		service:  "desec.io",
+		username: username,
+		password: password,
 	}
 }
 
-func (d desec) UpdateIPv4(ipAddress string) {
+func (d desec) UpdateIPv4(ipAddress, host string) {
 	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
-	sendUpdateRequest(d.webhookIPv4, ipAddress)
+	d.sendUpdateRequest("https://update.dedyn.io", host, ipAddress)
 }
 
-func (d desec) UpdateIPv6(ipAddress string) {
+func (d desec) UpdateIPv6(ipAddress, host string) {
 	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
-	sendUpdateRequest(d.webhookIPv6, ipAddress)
+	d.sendUpdateRequest("https://update6.dedyn.io", host, ipAddress)
 }
 
-func sendUpdateRequest(baseUrl, ipAddress string) {
-	var url = baseUrl + "?hostname=" + strings.Join(config.Domains, ",") + "&myip=" + ipAddress
+func (d desec) sendUpdateRequest(baseUrl, host, ipAddress string) {
+	var url = baseUrl + "?hostname=" + host + "&myip=" + ipAddress
 
 	logger.Info.Printf("Preparing update request to %v\n", url)
 
@@ -51,7 +44,7 @@ func sendUpdateRequest(baseUrl, ipAddress string) {
 		return
 	}
 
-	req.SetBasicAuth(config.Username, config.Token)
+	req.SetBasicAuth(d.username, d.password)
 
 	resp, err := client.Do(req)
 
