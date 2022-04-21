@@ -8,14 +8,33 @@ import (
 	"strings"
 )
 
-func DesecIPv4(ipAddress string) {
-	logger.Info.Println("Initiating DNS Update (Desec.io)")
-	sendUpdateRequest("https://update.dedyn.io", ipAddress)
+type DynDnsService interface {
+	UpdateIPv4(string)
+	UpdateIPv6(string)
 }
 
-func DesecIPv6(ipAddress string) {
-	logger.Info.Println("Initiating DNS Update (Desec.io)")
-	sendUpdateRequest("https://update6.dedyn.io", ipAddress)
+type desec struct {
+	service     string
+	webhookIPv4 string
+	webhookIPv6 string
+}
+
+func NewDesec() desec {
+	return desec{
+		service:     "desec.io",
+		webhookIPv4: "https://update.dedyn.io",
+		webhookIPv6: "https://update6.dedyn.io",
+	}
+}
+
+func (d desec) UpdateIPv4(ipAddress string) {
+	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
+	sendUpdateRequest(d.webhookIPv4, ipAddress)
+}
+
+func (d desec) UpdateIPv6(ipAddress string) {
+	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
+	sendUpdateRequest(d.webhookIPv6, ipAddress)
 }
 
 func sendUpdateRequest(baseUrl, ipAddress string) {

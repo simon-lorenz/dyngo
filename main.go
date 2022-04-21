@@ -41,13 +41,15 @@ func main() {
 }
 
 func updateDynDNS() {
+
+	services := []clients.DynDnsService{clients.NewDesec()}
+
 	if config.IPv4Enabled {
 		var upstreamIPv4 = helper.GetIPv4()
 
 		if upstreamIPv4 != currentIPv4 {
 			logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
-
-			clients.DesecIPv4(upstreamIPv4)
+			services[0].UpdateIPv4(upstreamIPv4)
 			currentIPv4 = upstreamIPv4
 		}
 	}
@@ -57,8 +59,7 @@ func updateDynDNS() {
 
 		if upstreamIPv6 != currentIPv6 {
 			logger.Info.Printf("Detected change in IP6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
-
-			clients.DesecIPv6(upstreamIPv6)
+			services[0].UpdateIPv6(upstreamIPv6)
 			currentIPv6 = upstreamIPv6
 		}
 	}
