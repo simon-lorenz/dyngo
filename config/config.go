@@ -6,6 +6,8 @@ import (
 	"errors"
 	"io"
 	"os"
+
+	"github.com/tidwall/jsonc"
 )
 
 var IPv4CheckUrl string
@@ -52,7 +54,7 @@ func init() {
 
 	var config ConfigurationJson
 
-	json.Unmarshal(getConfigurationFileAsBytes(), &config)
+	json.Unmarshal(jsonc.ToJSON(getConfigurationFileAsBytes()), &config)
 
 	// TODO: Validation
 
