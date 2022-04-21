@@ -60,9 +60,15 @@ func Parse() {
 
 	v := validator.New()
 	err := v.Struct(config)
+	errors := err.(validator.ValidationErrors)
 
-	for _, e := range err.(validator.ValidationErrors) {
+	for _, e := range errors {
 		logger.Warn.Println("Validation error in configuration: " + e.Error())
+	}
+
+	if len(errors) > 0 {
+		logger.Error.Println("Validation invalid")
+		os.Exit(1)
 	}
 
 	IPv4CheckUrl = config.IPv4CheckUrl
