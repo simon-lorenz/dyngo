@@ -8,6 +8,8 @@ import (
 	"os"
 
 	"github.com/tidwall/jsonc"
+
+	"github.com/go-playground/validator/v10"
 )
 
 var IPv4CheckUrl string
@@ -42,21 +44,26 @@ func getConfigurationFileAsBytes() []byte {
 	return byteValue
 }
 
-func init() {
+func Parse() {
 	type ConfigurationJson struct {
-		IPv4CheckUrl string
-		IPv6CheckUrl string
-		Username     string
-		Token        string
-		Domains      []string
-		Cron         string
+		IPv4CheckUrl string   `validate:"url,required_without=IPv6CheckUrl"`
+		IPv6CheckUrl string   `validate:"url,required_without=IPv4CheckUrl"`
+		Username     string   `validate:"required"`
+		Token        string   `validate:"required"`
+		Domains      []string `validate:"required,dive,required,uri"`
+		Cron         string   `validate:"required"`
 	}
 
 	var config ConfigurationJson
 
 	json.Unmarshal(jsonc.ToJSON(getConfigurationFileAsBytes()), &config)
 
-	// TODO: Validation
+	v := validator.New()
+	err := v.Struct(config)
+
+	for _, e := range err.(validator.ValidationErrors) {
+		logger.Warn.Println("Validation error in configuration: " + e.Error())
+	}
 
 	IPv4CheckUrl = config.IPv4CheckUrl
 	IPv4Enabled = config.IPv4CheckUrl != ""

@@ -5,6 +5,7 @@ import (
 	"dyngo/config"
 	"dyngo/helper"
 	"dyngo/logger"
+	"fmt"
 	"os"
 
 	"github.com/robfig/cron/v3"
@@ -16,10 +17,14 @@ var currentIPv6 string
 func main() {
 	c := cron.New(cron.WithSeconds())
 
-	logger.Info.Println("============================")
-	logger.Info.Println("= Welcome to dyngo v0.0.1! =")
-	logger.Info.Println("============================")
-	logger.Info.Println("")
+	fmt.Println("===========================")
+	fmt.Println("==   Welcome to DynGO!   ==")
+	fmt.Println("==   Version: 0.0.1      ==")
+	fmt.Println("===========================")
+
+	fmt.Println("")
+
+	config.Parse()
 
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 
