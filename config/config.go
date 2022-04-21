@@ -50,7 +50,7 @@ func Parse() {
 		IPv6CheckUrl string   `validate:"url,required_without=IPv4CheckUrl"`
 		Username     string   `validate:"required"`
 		Token        string   `validate:"required"`
-		Domains      []string `validate:"required,dive,required,uri"`
+		Domains      []string `validate:"required,dive,required,hostname"`
 		Cron         string   `validate:"required"`
 	}
 
@@ -60,13 +60,14 @@ func Parse() {
 
 	v := validator.New()
 	err := v.Struct(config)
-	errors := err.(validator.ValidationErrors)
 
-	for _, e := range errors {
-		logger.Warn.Println("Validation error in configuration: " + e.Error())
-	}
+	if err != nil {
+		errors := err.(validator.ValidationErrors)
 
-	if len(errors) > 0 {
+		for _, e := range errors {
+			logger.Warn.Println("Validation error in configuration: " + e.Error())
+		}
+
 		logger.Error.Println("Validation invalid")
 		os.Exit(1)
 	}
