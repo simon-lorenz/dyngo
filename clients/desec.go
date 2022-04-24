@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"dyngo/config"
 	"dyngo/logger"
 	"net/http"
 	"strconv"
@@ -10,24 +11,40 @@ type desec struct {
 	service  string
 	username string
 	password string
+	hosts    []config.HostConfiguration
 }
 
-func NewDesec(username, password string) desec {
+func NewDesec(config config.ServiceConfiguration) desec {
 	return desec{
 		service:  "desec.io",
-		username: username,
-		password: password,
+		username: config.Username,
+		password: config.Password,
+		hosts:    config.Hosts,
 	}
 }
 
-func (d desec) UpdateIPv4(ipAddress, host string) {
+func (d desec) UpdateIPv4(ipAddress string) {
 	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
-	d.sendUpdateRequest("https://update.dedyn.io", host, ipAddress)
+
+	for _, host := range d.hosts {
+		d.sendUpdateRequest("https://update.dedyn.io", host.Host, ipAddress)
+	}
 }
 
-func (d desec) UpdateIPv6(ipAddress, host string) {
+func (d desec) UpdateIPv6(ipAddress string) {
 	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
-	d.sendUpdateRequest("https://update6.dedyn.io", host, ipAddress)
+
+	for _, host := range d.hosts {
+		d.sendUpdateRequest("https://update6.dedyn.io", host.Host, ipAddress)
+	}
+}
+
+func (d desec) GetHosts() []config.HostConfiguration {
+	return d.hosts
+}
+
+func (d desec) GetName() string {
+	return d.service
 }
 
 func (d desec) sendUpdateRequest(baseUrl, host, ipAddress string) {
