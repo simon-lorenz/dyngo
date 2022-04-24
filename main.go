@@ -45,6 +45,11 @@ func updateDynDNS() {
 	if services.AtLeasingOneDomainRequires("v4") {
 		upstreamIPv4 = detection.GetIPv4()
 
+		if upstreamIPv4 == "" {
+			logger.Error.Printf("Could not determine IPv4, skipping...")
+			return
+		}
+
 		if currentIPv4 != upstreamIPv4 {
 			logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
 		}
@@ -52,6 +57,11 @@ func updateDynDNS() {
 
 	if services.AtLeasingOneDomainRequires("v6") {
 		upstreamIPv6 = detection.GetIPv6()
+
+		if upstreamIPv6 == "" {
+			logger.Error.Printf("Could not determine IPv6, skipping...")
+			return
+		}
 
 		if currentIPv6 != upstreamIPv6 {
 			logger.Info.Printf("Detected change in IPv6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
