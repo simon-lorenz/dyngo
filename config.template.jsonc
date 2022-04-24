@@ -4,9 +4,9 @@
     "desec": {
       "username": "test",
       "password": "123",
-      "hosts": [
+      "domains": [
         {
-          "host": "test.test.de",
+          "domain": "test.test.de",
           "v4": true,
           "v6": false
         }

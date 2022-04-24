@@ -24,14 +24,13 @@ func main() {
 	fmt.Println("")
 
 	config.Parse()
+	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 
 	// I should probably loop over Services, but it's a struct and I don't know
 	// what golangs equivalent to Object.keys() is...
-	if config.Services.Desec.Hosts != nil {
+	if config.Services.Desec.Domains != nil {
 		services.Register(services.NewDesec(config.Services.Desec))
 	}
-
-	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 
 	c.AddFunc(config.Cron, updateDynDNS)
 
@@ -41,8 +40,8 @@ func main() {
 
 func atLeastOneHostRequests(protocol string) bool {
 	for _, service := range services.Registered {
-		for _, host := range service.GetHosts() {
-			if (protocol == "v4" && host.V4) || (protocol == "v6" && host.V6) {
+		for _, domain := range service.GetDomains() {
+			if (protocol == "v4" && domain.V4) || (protocol == "v6" && domain.V6) {
 				return true
 			}
 		}
@@ -57,25 +56,23 @@ func updateDynDNS() {
 
 	if atLeastOneHostRequests("v4") {
 		upstreamIPv4 = detection.GetIPv4()
+
+		if currentIPv4 != upstreamIPv4 {
+			logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
+		}
 	}
 
 	if atLeastOneHostRequests("v6") {
 		upstreamIPv6 = detection.GetIPv6()
+
+		if currentIPv6 != upstreamIPv6 {
+			logger.Info.Printf("Detected change in IPv6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
+		}
 	}
 
 	for _, service := range services.Registered {
-		for _, host := range service.GetHosts() {
-			if host.V4 && currentIPv4 != upstreamIPv4 {
-				logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
-				service.UpdateIPv4(upstreamIPv4)
-				currentIPv4 = upstreamIPv4
-			}
-
-			if host.V6 && currentIPv6 != upstreamIPv6 {
-				logger.Info.Printf("Detected change in IPv6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
-				service.UpdateIPv6(upstreamIPv6)
-				currentIPv6 = upstreamIPv6
-			}
-		}
+		service.SetTargetIPv4(upstreamIPv4)
+		service.SetTargetIPv6(upstreamIPv6)
+		service.UpdateAllDomains()
 	}
 }

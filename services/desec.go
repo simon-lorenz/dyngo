@@ -3,73 +3,107 @@ package services
 import (
 	"dyngo/config"
 	"dyngo/logger"
+	"errors"
 	"net/http"
 	"strconv"
 )
 
 type desec struct {
-	service  string
-	username string
-	password string
-	hosts    []config.HostConfiguration
+	name       string
+	username   string
+	password   string
+	targetIPv4 string
+	targetIPv6 string
+	domains    []DynDnsDomain
 }
 
-func NewDesec(config config.ServiceConfiguration) desec {
-	return desec{
-		service:  "desec.io",
+func NewDesec(config config.ServiceConfiguration) *desec {
+	var result desec = desec{
+		name:     "deSEC.io",
 		username: config.Username,
 		password: config.Password,
-		hosts:    config.Hosts,
+	}
+
+	for _, domain := range config.Domains {
+		result.domains = append(result.domains, DynDnsDomain{
+			domain:      domain.Domain,
+			V4:          domain.V4,
+			V6:          domain.V6,
+			currentIpV4: "",
+			currentIPv6: "",
+		})
+	}
+
+	return &result
+}
+
+func (service *desec) SetTargetIPv4(ip string) {
+	service.targetIPv4 = ip
+}
+
+func (service *desec) SetTargetIPv6(ip string) {
+	service.targetIPv6 = ip
+}
+
+func (service *desec) UpdateAllDomains() {
+	for _, domain := range service.domains {
+		if domain.V4 && domain.currentIpV4 != service.targetIPv4 {
+
+			err := service.sendUpdateRequest("https://update.dedyn.io", domain.domain, service.targetIPv4)
+
+			if err == nil {
+				logger.Info.Printf("[%v] %v -> %v (success)", service.GetName(), domain.domain, service.targetIPv4)
+				domain.currentIpV4 = service.targetIPv4
+			} else {
+				logger.Error.Printf("[%v] %v -> %v (%v)", service.GetName(), domain.domain, service.targetIPv4, err.Error())
+			}
+		}
+
+		if domain.V6 && domain.currentIPv6 != service.targetIPv6 {
+			logger.Info.Printf("Updating %v to point to %v", domain.domain, service.targetIPv6)
+
+			err := service.sendUpdateRequest("https://update6.dedyn.io", domain.domain, service.targetIPv6)
+
+			if err == nil {
+				logger.Info.Printf("[%v] %v -> %v (success)", service.GetName(), domain.domain, service.targetIPv6)
+				domain.currentIPv6 = service.targetIPv6
+			} else {
+				logger.Error.Printf("[%v] %v -> %v (%v)", service.GetName(), domain.domain, service.targetIPv6, err.Error())
+			}
+		}
 	}
 }
 
-func (d desec) UpdateIPv4(ipAddress string) {
-	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
-
-	for _, host := range d.hosts {
-		d.sendUpdateRequest("https://update.dedyn.io", host.Host, ipAddress)
-	}
+func (service *desec) GetDomains() []DynDnsDomain {
+	return service.domains
 }
 
-func (d desec) UpdateIPv6(ipAddress string) {
-	logger.Info.Println("Initiating DNS Update (" + d.service + ")")
-
-	for _, host := range d.hosts {
-		d.sendUpdateRequest("https://update6.dedyn.io", host.Host, ipAddress)
-	}
+func (service *desec) GetName() string {
+	return service.name
 }
 
-func (d desec) GetHosts() []config.HostConfiguration {
-	return d.hosts
-}
-
-func (d desec) GetName() string {
-	return d.service
-}
-
-func (d desec) sendUpdateRequest(baseUrl, host, ipAddress string) {
+func (service *desec) sendUpdateRequest(baseUrl, host, ipAddress string) error {
 	var url = baseUrl + "?hostname=" + host + "&myip=" + ipAddress
 
-	logger.Info.Printf("Preparing update request to %v\n", url)
+	logger.Debug.Printf("[%v] Sending update request '%v'\n", service.GetName(), url)
 
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {
-		logger.Error.Println("DNS Update failed: " + err.Error())
-		return
+		return err
 	}
 
-	req.SetBasicAuth(d.username, d.password)
+	req.SetBasicAuth(service.username, service.password)
 
 	resp, err := client.Do(req)
 
 	if err != nil {
-		logger.Error.Println("DNS Update failed: " + err.Error())
+		return err
 	} else if resp.StatusCode != http.StatusOK {
-		logger.Error.Println("DNS Update failed: Unexpected http status " + strconv.FormatInt(int64(resp.StatusCode), 10))
+		return errors.New("unexpected http status: " + strconv.FormatInt(int64(resp.StatusCode), 10))
 	} else {
-		logger.Info.Println("DNS Update successful")
+		return nil
 	}
 }

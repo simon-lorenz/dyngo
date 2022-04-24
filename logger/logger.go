@@ -13,7 +13,7 @@ var Warn *log.Logger
 var Error *log.Logger
 var Fatal *log.Logger
 
-var LogLevel = LogLevelInfo
+var LogLevel = LogLevelDebug
 
 const (
 	LogLevelTrace   = 1 // "TRC"
@@ -61,8 +61,8 @@ func (writer logWriter) Write(bytes []byte) (int, error) {
 }
 
 func init() {
-	Trace = log.New(logWriter{level: LogLevelInfo}, "", 0)
-	Debug = log.New(logWriter{level: LogLevelInfo}, "", 0)
+	Trace = log.New(logWriter{level: LogLevelTrace}, "", 0)
+	Debug = log.New(logWriter{level: LogLevelDebug}, "", 0)
 	Info = log.New(logWriter{level: LogLevelInfo}, "", 0)
 	Warn = log.New(logWriter{level: LogLevelWarning}, "", 0)
 	Error = log.New(logWriter{level: LogLevelError}, "", 0)

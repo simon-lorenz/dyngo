@@ -12,16 +12,16 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type HostConfiguration struct {
-	Host string `json:"host" validate:"required,hostname"`
-	V4   bool   `json:"v4"`
-	V6   bool   `json:"v6"`
+type DomainConfiguration struct {
+	Domain string `json:"domain" validate:"required,hostname"`
+	V4     bool   `json:"v4"`
+	V6     bool   `json:"v6"`
 }
 
 type ServiceConfiguration struct {
-	Username string              `json:"username" validate:"required"`
-	Password string              `json:"password" validate:"required"`
-	Hosts    []HostConfiguration `json:"hosts" validate:"required,dive"`
+	Username string                `json:"username" validate:"required"`
+	Password string                `json:"password" validate:"required"`
+	Domains  []DomainConfiguration `json:"domains" validate:"required,dive"`
 }
 
 type ServicesConfiguration struct {
