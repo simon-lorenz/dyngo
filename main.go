@@ -16,6 +16,8 @@ var currentIPv6 string
 func main() {
 	c := cron.New(cron.WithSeconds())
 
+	fmt.Println("")
+
 	fmt.Println("===========================")
 	fmt.Println("==   Welcome to DynGO!   ==")
 	fmt.Println("==   Version: 0.0.1      ==")
