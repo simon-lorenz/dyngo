@@ -5,7 +5,7 @@ Description=A DynDNS client written in go
 Type=simple
 Restart=on-failure
 ExecStart=/usr/bin/dyngo
-StandardOutput=file:/var/log/dyngo.log
+StandardOutput=append:/var/log/dyngo.log
 
 [Install]
 WantedBy=multi-user.target
