@@ -1,12 +1,12 @@
 {
-  "cron": "* *5 * * * *",
+  "cron": "* */5 * * * *",
   "services": {
     "desec": {
-      "username": "test",
-      "password": "123",
+      "username": "me.dedyn.io",
+      "password": "SECRET_TOKEN",
       "domains": [
         {
-          "domain": "test.test.de",
+          "domain": "test.me.dedyn.io",
           "v4": true,
           "v6": false
         }
