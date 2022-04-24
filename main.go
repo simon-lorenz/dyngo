@@ -17,12 +17,10 @@ func main() {
 	c := cron.New(cron.WithSeconds())
 
 	fmt.Println("")
-
 	fmt.Println("===========================")
 	fmt.Println("==   Welcome to DynGO!   ==")
 	fmt.Println("==   Version: 0.0.1      ==")
 	fmt.Println("===========================")
-
 	fmt.Println("")
 
 	config.Parse()
@@ -37,26 +35,39 @@ func main() {
 }
 
 func updateDynDNS() {
-	upstreamIPv4 := detection.GetIPv4()
-	// upstreamIPv6 := detection.GetIPv6()
-	upstreamIPv6 := ""
+	IPv4Enabled := config.AtLeastOneIPv4UpdateRequested()
+	IPv6Enabled := config.AtLeastOneIPv6UpdateRequested()
 
-	// TODO: Register active services of configuration file and loop over them
+	if IPv4Enabled {
+		upstreamIPv4 := detection.GetIPv4()
 
-	if config.Services.Desec.Username != "" { // TODO: Normally I would check for nil but this doesn't work
-		for _, host := range config.Services.Desec.Hosts {
-			desec := clients.NewDesec(config.Services.Desec.Username, config.Services.Desec.Password)
+		if config.Services.Desec.Hosts != nil {
+			for _, host := range config.Services.Desec.Hosts {
+				desec := clients.NewDesec(config.Services.Desec.Username, config.Services.Desec.Password)
 
-			if host.V4 && currentIPv4 != upstreamIPv4 {
-				logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
-				desec.UpdateIPv4(detection.GetIPv4(), host.Host)
-				currentIPv4 = upstreamIPv4
+				if host.V4 && currentIPv4 != upstreamIPv4 {
+					logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
+					desec.UpdateIPv4(detection.GetIPv4(), host.Host)
+					currentIPv4 = upstreamIPv4
+				}
+
 			}
+		}
+	}
 
-			if host.V6 && currentIPv6 != upstreamIPv6 {
-				logger.Info.Printf("Detected change in IP6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
-				desec.UpdateIPv6(detection.GetIPv6(), host.Host)
-				currentIPv6 = upstreamIPv6
+	if IPv6Enabled {
+		upstreamIPv6 := detection.GetIPv6()
+
+		// TODO: Register active services of configuration file and loop over them
+		if config.Services.Desec.Hosts != nil {
+			for _, host := range config.Services.Desec.Hosts {
+				desec := clients.NewDesec(config.Services.Desec.Username, config.Services.Desec.Password)
+
+				if host.V6 && currentIPv6 != upstreamIPv6 {
+					logger.Info.Printf("Detected change in IP6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
+					desec.UpdateIPv6(detection.GetIPv6(), host.Host)
+					currentIPv6 = upstreamIPv6
+				}
 			}
 		}
 	}

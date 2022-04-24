@@ -95,3 +95,43 @@ func Parse() {
 	IPv4AddressDetection = config.IPv4AddressDetection
 	IPv6AddressDetection = config.IPv6AddressDetection
 }
+
+func AtLeastOneIPv4UpdateRequested() bool {
+	return atLeastOneHostRequests("v4")
+}
+
+func AtLeastOneIPv6UpdateRequested() bool {
+	return atLeastOneHostRequests("v6")
+}
+
+func atLeastOneHostRequests(protocol string) bool {
+	var services []ServiceConfiguration
+
+	// I should probably loop over Services, but it's a struct and I don't know
+	// what golangs equivalent to Object.keys() is...
+	if Services.Desec.Hosts != nil {
+		services = append(services, Services.Desec)
+	}
+
+	var result bool = false
+
+	for _, service := range services {
+		for _, host := range service.Hosts {
+			if protocol == "v4" && host.V4 {
+				result = true
+				break
+			}
+
+			if protocol == "v6" && host.V6 {
+				result = true
+				break
+			}
+		}
+
+		if result {
+			break
+		}
+	}
+
+	return result
+}
