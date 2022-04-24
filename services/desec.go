@@ -48,27 +48,24 @@ func (service *desec) SetTargetIPv6(ip string) {
 func (service *desec) UpdateAllDomains() {
 	for _, domain := range service.domains {
 		if domain.V4 && domain.currentIpV4 != service.targetIPv4 {
-
 			err := service.sendUpdateRequest("https://update.dedyn.io", domain.domain, service.targetIPv4)
 
 			if err == nil {
-				logger.Info.Printf("[%v] %v -> %v (success)", service.GetName(), domain.domain, service.targetIPv4)
+				logger.LogDynDnsUpdate(service.GetName(), domain.domain, service.targetIPv4, nil)
 				domain.currentIpV4 = service.targetIPv4
 			} else {
-				logger.Error.Printf("[%v] %v -> %v (%v)", service.GetName(), domain.domain, service.targetIPv4, err.Error())
+				logger.LogDynDnsUpdate(service.GetName(), domain.domain, service.targetIPv6, err)
 			}
 		}
 
 		if domain.V6 && domain.currentIPv6 != service.targetIPv6 {
-			logger.Info.Printf("Updating %v to point to %v", domain.domain, service.targetIPv6)
-
 			err := service.sendUpdateRequest("https://update6.dedyn.io", domain.domain, service.targetIPv6)
 
 			if err == nil {
-				logger.Info.Printf("[%v] %v -> %v (success)", service.GetName(), domain.domain, service.targetIPv6)
+				logger.LogDynDnsUpdate(service.GetName(), domain.domain, service.targetIPv4, nil)
 				domain.currentIPv6 = service.targetIPv6
 			} else {
-				logger.Error.Printf("[%v] %v -> %v (%v)", service.GetName(), domain.domain, service.targetIPv6, err.Error())
+				logger.LogDynDnsUpdate(service.GetName(), domain.domain, service.targetIPv6, err)
 			}
 		}
 	}

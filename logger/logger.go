@@ -28,6 +28,14 @@ type logWriter struct {
 	level int
 }
 
+func LogDynDnsUpdate(service, domain, ip string, err error) {
+	if err == nil {
+		Info.Printf("[%v] %v -> %v (success)", service, domain, ip)
+	} else {
+		Error.Printf("[%v] %v -> %v (%v)", service, domain, ip, err.Error())
+	}
+}
+
 func (writer logWriter) Write(bytes []byte) (int, error) {
 	var level string
 
