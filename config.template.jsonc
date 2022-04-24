@@ -1,5 +1,5 @@
 {
-  "cron": "* */5 * * * *",
+  "cron": "0 */5 * * * *",
   "services": {
     "desec": {
       "username": "me.dedyn.io",
