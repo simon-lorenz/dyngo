@@ -86,7 +86,7 @@ func Parse() {
 			logger.Warn.Println("Validation error in configuration: " + e.Error())
 		}
 
-		logger.Error.Println("Validation invalid")
+		logger.Error.Println("Configuration file is invalid")
 		os.Exit(1)
 	}
 
