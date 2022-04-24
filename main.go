@@ -1,10 +1,10 @@
 package main
 
 import (
-	"dyngo/clients"
 	"dyngo/config"
 	"dyngo/detection"
 	"dyngo/logger"
+	"dyngo/services"
 	"fmt"
 
 	"github.com/robfig/cron/v3"
@@ -12,15 +12,6 @@ import (
 
 var currentIPv4 string
 var currentIPv6 string
-
-type DynDnsService interface {
-	UpdateIPv4(string)
-	UpdateIPv6(string)
-	GetHosts() []config.HostConfiguration
-	GetName() string
-}
-
-var activeServices []DynDnsService
 
 func main() {
 	c := cron.New(cron.WithSeconds())
@@ -37,20 +28,19 @@ func main() {
 	// I should probably loop over Services, but it's a struct and I don't know
 	// what golangs equivalent to Object.keys() is...
 	if config.Services.Desec.Hosts != nil {
-		registerService(clients.NewDesec(config.Services.Desec))
+		services.Register(services.NewDesec(config.Services.Desec))
 	}
 
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 
 	c.AddFunc(config.Cron, updateDynDNS)
 
-	updateDynDNS() // Run immediatly
-
-	c.Run() // Run cron
+	updateDynDNS() // Run immediatly once
+	c.Run()        // Run cron
 }
 
 func atLeastOneHostRequests(protocol string) bool {
-	for _, service := range activeServices {
+	for _, service := range services.Registered {
 		for _, host := range service.GetHosts() {
 			if (protocol == "v4" && host.V4) || (protocol == "v6" && host.V6) {
 				return true
@@ -59,11 +49,6 @@ func atLeastOneHostRequests(protocol string) bool {
 	}
 
 	return false
-}
-
-func registerService(service DynDnsService) {
-	activeServices = append(activeServices, service)
-	logger.Info.Printf("Registered service '%v'", service.GetName())
 }
 
 func updateDynDNS() {
@@ -78,7 +63,7 @@ func updateDynDNS() {
 		upstreamIPv6 = detection.GetIPv6()
 	}
 
-	for _, service := range activeServices {
+	for _, service := range services.Registered {
 		for _, host := range service.GetHosts() {
 			if host.V4 && currentIPv4 != upstreamIPv4 {
 				logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
