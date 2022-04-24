@@ -38,23 +38,11 @@ func main() {
 	c.Run()        // Run cron
 }
 
-func atLeastOneHostRequests(protocol string) bool {
-	for _, service := range services.Registered {
-		for _, domain := range service.GetDomains() {
-			if (protocol == "v4" && domain.V4) || (protocol == "v6" && domain.V6) {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
 func updateDynDNS() {
 	var upstreamIPv4 string
 	var upstreamIPv6 string
 
-	if atLeastOneHostRequests("v4") {
+	if services.AtLeasingOneDomainRequires("v4") {
 		upstreamIPv4 = detection.GetIPv4()
 
 		if currentIPv4 != upstreamIPv4 {
@@ -62,7 +50,7 @@ func updateDynDNS() {
 		}
 	}
 
-	if atLeastOneHostRequests("v6") {
+	if services.AtLeasingOneDomainRequires("v6") {
 		upstreamIPv6 = detection.GetIPv6()
 
 		if currentIPv6 != upstreamIPv6 {
