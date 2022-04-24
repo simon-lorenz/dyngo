@@ -13,15 +13,15 @@ var Warn *log.Logger
 var Error *log.Logger
 var Fatal *log.Logger
 
-var LogLevel = logLevelInfo
+var LogLevel = LogLevelInfo
 
 const (
-	logLevelTrace   = 1 // "TRC"
-	logLevelDebug   = 2 // "DBG"
-	logLevelInfo    = 3 // "INF"
-	logLevelWarning = 4 // "WRN"
-	logLevelError   = 5 // "ERR"
-	logLevelFatal   = 6 // "FTL"
+	LogLevelTrace   = 1 // "TRC"
+	LogLevelDebug   = 2 // "DBG"
+	LogLevelInfo    = 3 // "INF"
+	LogLevelWarning = 4 // "WRN"
+	LogLevelError   = 5 // "ERR"
+	LogLevelFatal   = 6 // "FTL"
 )
 
 type logWriter struct {
@@ -61,10 +61,10 @@ func (writer logWriter) Write(bytes []byte) (int, error) {
 }
 
 func init() {
-	Trace = log.New(logWriter{level: logLevelInfo}, "", 0)
-	Debug = log.New(logWriter{level: logLevelInfo}, "", 0)
-	Info = log.New(logWriter{level: logLevelInfo}, "", 0)
-	Warn = log.New(logWriter{level: logLevelWarning}, "", 0)
-	Error = log.New(logWriter{level: logLevelError}, "", 0)
-	Fatal = log.New(logWriter{level: logLevelInfo}, "", 0)
+	Trace = log.New(logWriter{level: LogLevelInfo}, "", 0)
+	Debug = log.New(logWriter{level: LogLevelInfo}, "", 0)
+	Info = log.New(logWriter{level: LogLevelInfo}, "", 0)
+	Warn = log.New(logWriter{level: LogLevelWarning}, "", 0)
+	Error = log.New(logWriter{level: LogLevelError}, "", 0)
+	Fatal = log.New(logWriter{level: LogLevelInfo}, "", 0)
 }
