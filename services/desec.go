@@ -82,7 +82,7 @@ func (service *desec) GetName() string {
 func (service *desec) sendUpdateRequest(baseUrl, host, ipAddress string) error {
 	var url = baseUrl + "?hostname=" + host + "&myip=" + ipAddress
 
-	logger.Debug.Printf("[%v] Sending update request '%v'\n", service.GetName(), url)
+	logger.Debug.Printf("[%v] Sending request: %v\n", service.GetName(), url)
 
 	client := &http.Client{}
 
