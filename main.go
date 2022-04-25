@@ -42,7 +42,7 @@ func updateDynDNS() {
 	var upstreamIPv4 string
 	var upstreamIPv6 string
 
-	if services.AtLeasingOneDomainRequires("v4") {
+	if services.AtLeastOneDomainRequires("v4") {
 		upstreamIPv4 = detection.GetIPv4()
 
 		if upstreamIPv4 == "" {
@@ -55,7 +55,7 @@ func updateDynDNS() {
 		}
 	}
 
-	if services.AtLeasingOneDomainRequires("v6") {
+	if services.AtLeastOneDomainRequires("v6") {
 		upstreamIPv6 = detection.GetIPv6()
 
 		if upstreamIPv6 == "" {

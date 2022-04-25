@@ -9,7 +9,7 @@ func Register(service DynDnsService) {
 	logger.Info.Printf("Registered service '%v'", service.GetName())
 }
 
-func AtLeasingOneDomainRequires(protocol string) bool {
+func AtLeastOneDomainRequires(protocol string) bool {
 	for _, service := range Registered {
 		for _, domain := range service.GetDomains() {
 			if (protocol == "v4" && domain.V4) || (protocol == "v6" && domain.V6) {
