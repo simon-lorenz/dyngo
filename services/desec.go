@@ -46,7 +46,9 @@ func (service *desec) SetTargetIPv6(ip string) {
 }
 
 func (service *desec) UpdateAllDomains() {
-	for _, domain := range service.domains {
+	for i := range service.domains {
+		domain := &service.domains[i]
+
 		if domain.V4 && domain.currentIpV4 != service.targetIPv4 {
 			err := service.sendUpdateRequest("https://update.dedyn.io", domain.domain, service.targetIPv4)
 

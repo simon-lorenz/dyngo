@@ -52,7 +52,9 @@ func updateDynDNS() {
 
 		if currentIPv4 != upstreamIPv4 {
 			logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
+			currentIPv4 = upstreamIPv4
 		}
+
 	}
 
 	if services.AtLeastOneDomainRequires("v6") {
@@ -65,6 +67,7 @@ func updateDynDNS() {
 
 		if currentIPv6 != upstreamIPv6 {
 			logger.Info.Printf("Detected change in IPv6 Address: '%v' -> '%v' \n", currentIPv6, upstreamIPv6)
+			currentIPv6 = upstreamIPv6
 		}
 	}
 
