@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/tidwall/jsonc"
 
@@ -41,12 +42,14 @@ type DyngoConfiguration struct {
 	Services             ServicesConfiguration             `json:"services" validate:"required,dive"`
 	IPv4AddressDetection IPv4AddressDetectionConfiguration `json:"v4AddressDetection" validate:"required"`
 	IPv6AddressDetection IPv6AddressDetectionConfiguration `json:"v6AddressDetection" validate:"required"`
+	LogLevel             string                            `json:"logLevel"`
 }
 
 var Cron string
 var Services ServicesConfiguration
 var IPv4AddressDetection IPv4AddressDetectionConfiguration
 var IPv6AddressDetection IPv6AddressDetectionConfiguration
+var LogLevel int
 
 func getConfigurationFileAsBytes() []byte {
 	var pathToConfiguration = "/etc/dyngo/config.jsonc"
@@ -94,4 +97,31 @@ func Parse() {
 	Services = config.Services
 	IPv4AddressDetection = config.IPv4AddressDetection
 	IPv6AddressDetection = config.IPv6AddressDetection
+
+	switch strings.ToLower(config.LogLevel) {
+	case "trace":
+		LogLevel = logger.LogLevelTrace
+		break
+	case "debug":
+		LogLevel = logger.LogLevelDebug
+		break
+	case "info":
+		LogLevel = logger.LogLevelInfo
+		break
+	case "warning":
+		LogLevel = logger.LogLevelWarning
+		break
+	case "error":
+		LogLevel = logger.LogLevelError
+		break
+	case "fatal":
+		LogLevel = logger.LogLevelFatal
+		break
+	default:
+		if config.LogLevel != "" {
+			logger.Warn.Printf("[Configuration] Log Level '%v' is invalid", config.LogLevel)
+		}
+
+		logger.Info.Println("[Configuration] Falling back to log level 'info'")
+	}
 }

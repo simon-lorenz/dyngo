@@ -24,6 +24,8 @@ func main() {
 	fmt.Println("")
 
 	config.Parse()
+
+	logger.LogLevel = config.LogLevel
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 
 	// I should probably loop over Services, but it's a struct and I don't know

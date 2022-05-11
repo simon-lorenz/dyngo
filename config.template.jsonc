@@ -18,5 +18,6 @@
   },
   "v6AddressDetection": {
     "web": "https://checkipv6.dedyn.io"
-  }
+  },
+  "logLevel": "info"
 }
