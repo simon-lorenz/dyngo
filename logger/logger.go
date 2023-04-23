@@ -14,42 +14,43 @@ var Warn *log.Logger
 var Error *log.Logger
 var Fatal *log.Logger
 
-var LogLevel = LogLevelDebug
-
-const (
-	LogLevelTrace   = 1 // "TRC"
-	LogLevelDebug   = 2 // "DBG"
-	LogLevelInfo    = 3 // "INF"
-	LogLevelWarning = 4 // "WRN"
-	LogLevelError   = 5 // "ERR"
-	LogLevelFatal   = 6 // "FTL"
-)
-
-type logWriter struct {
-	level int
+type LogLevel struct {
+	Prefix   string
+	Name     string
+	AsNumber int
 }
 
-func LogLevelByString(level string) (int, error) {
-	switch level {
-	case "trace":
+var LogLevelTrace LogLevel = LogLevel{Prefix: "TRC", Name: "trace", AsNumber: 1}
+var LogLevelDebug LogLevel = LogLevel{Prefix: "DBG", Name: "debug", AsNumber: 2}
+var LogLevelInfo LogLevel = LogLevel{Prefix: "INF", Name: "info", AsNumber: 3}
+var LogLevelWarning LogLevel = LogLevel{Prefix: "WRN", Name: "warn", AsNumber: 4}
+var LogLevelError LogLevel = LogLevel{Prefix: "ERR", Name: "error", AsNumber: 5}
+var LogLevelFatal LogLevel = LogLevel{Prefix: "FTL", Name: "fatal", AsNumber: 6}
+
+var level LogLevel = LogLevelDebug
+
+func SetLogLevel(levelAsString string) {
+	level, _ = LogLevelByString(levelAsString)
+}
+
+type logWriter struct {
+	level LogLevel
+}
+
+func LogLevelByString(level string) (LogLevel, error) {
+	if level == LogLevelTrace.Name {
 		return LogLevelTrace, nil
-
-	case "debug":
+	} else if level == LogLevelDebug.Name {
 		return LogLevelDebug, nil
-
-	case "info":
+	} else if level == LogLevelInfo.Name {
 		return LogLevelInfo, nil
-
-	case "warning":
+	} else if level == LogLevelWarning.Name {
 		return LogLevelWarning, nil
-
-	case "error":
+	} else if level == LogLevelError.Name {
 		return LogLevelError, nil
-
-	case "fatal":
+	} else if level == LogLevelFatal.Name {
 		return LogLevelFatal, nil
-
-	default:
+	} else {
 		return LogLevelInfo, errors.New("Cannot determine log level for string \"" + level + "\"")
 	}
 }
@@ -63,31 +64,8 @@ func LogDynDnsUpdate(service, domain, ip string, err error) {
 }
 
 func (writer logWriter) Write(bytes []byte) (int, error) {
-	var level string
-
-	switch writer.level {
-	case 1:
-		level = "TRC"
-		break
-	case 2:
-		level = "DBG"
-		break
-	case 3:
-		level = "INF"
-		break
-	case 4:
-		level = "WRN"
-		break
-	case 5:
-		level = "ERR"
-		break
-	case 6:
-		level = "FTL"
-		break
-	}
-
-	if writer.level >= LogLevel {
-		return fmt.Print(time.Now().UTC().Format(time.RFC3339) + " [" + level + "] " + string(bytes))
+	if writer.level.AsNumber >= level.AsNumber {
+		return fmt.Print(time.Now().UTC().Format(time.RFC3339) + " [" + writer.level.Prefix + "] " + string(bytes))
 	} else {
 
 		return fmt.Print()

@@ -32,7 +32,7 @@ func main() {
 
 	config.Parse(*flags.config)
 
-	logger.LogLevel = config.LogLevel
+	logger.SetLogLevel(config.LogLevel)
 
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 

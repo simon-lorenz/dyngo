@@ -42,7 +42,7 @@ var Cron string
 var Services ServicesConfiguration
 var IPv4AddressDetection AddressDetectionConfiguration
 var IPv6AddressDetection AddressDetectionConfiguration
-var LogLevel int
+var LogLevel string
 
 func getConfigurationFileAsBytes(path string) []byte {
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
@@ -90,5 +90,5 @@ func Parse(path string) {
 	Services = config.Services
 	IPv4AddressDetection = config.IPv4AddressDetection
 	IPv6AddressDetection = config.IPv6AddressDetection
-	LogLevel, _ = logger.LogLevelByString(config.LogLevel)
+	LogLevel = config.LogLevel
 }
