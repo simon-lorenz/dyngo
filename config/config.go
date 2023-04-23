@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v2"
@@ -40,7 +39,7 @@ type DyngoConfiguration struct {
 	Services             ServicesConfiguration             `yaml:"services" validate:"required,dive"`
 	IPv4AddressDetection IPv4AddressDetectionConfiguration `yaml:"v4AddressDetection" validate:"required"`
 	IPv6AddressDetection IPv6AddressDetectionConfiguration `yaml:"v6AddressDetection" validate:"required"`
-	LogLevel             string                            `yaml:"logLevel"`
+	LogLevel             string                            `yaml:"logLevel" validate:"oneof=trace debug info warning error fatal"`
 }
 
 var Cron string
@@ -95,31 +94,5 @@ func Parse(path string) {
 	Services = config.Services
 	IPv4AddressDetection = config.IPv4AddressDetection
 	IPv6AddressDetection = config.IPv6AddressDetection
-
-	switch strings.ToLower(config.LogLevel) {
-	case "trace":
-		LogLevel = logger.LogLevelTrace
-		break
-	case "debug":
-		LogLevel = logger.LogLevelDebug
-		break
-	case "info":
-		LogLevel = logger.LogLevelInfo
-		break
-	case "warning":
-		LogLevel = logger.LogLevelWarning
-		break
-	case "error":
-		LogLevel = logger.LogLevelError
-		break
-	case "fatal":
-		LogLevel = logger.LogLevelFatal
-		break
-	default:
-		if config.LogLevel != "" {
-			logger.Warn.Printf("[Configuration] Log Level '%v' is invalid", config.LogLevel)
-		}
-
-		logger.Info.Println("[Configuration] Falling back to log level 'info'")
-	}
+	LogLevel, _ = logger.LogLevelByString(config.LogLevel)
 }

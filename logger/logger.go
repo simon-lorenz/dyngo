@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -26,6 +27,31 @@ const (
 
 type logWriter struct {
 	level int
+}
+
+func LogLevelByString(level string) (int, error) {
+	switch level {
+	case "trace":
+		return LogLevelTrace, nil
+
+	case "debug":
+		return LogLevelDebug, nil
+
+	case "info":
+		return LogLevelInfo, nil
+
+	case "warning":
+		return LogLevelWarning, nil
+
+	case "error":
+		return LogLevelError, nil
+
+	case "fatal":
+		return LogLevelFatal, nil
+
+	default:
+		return LogLevelInfo, errors.New("Cannot determine log level for string \"" + level + "\"")
+	}
 }
 
 func LogDynDnsUpdate(service, domain, ip string, err error) {
