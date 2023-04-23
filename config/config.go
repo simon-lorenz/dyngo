@@ -10,10 +10,16 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type DomainConfiguration struct {
-	Domain string `yaml:"domain" validate:"required,hostname"`
-	V4     bool   `yaml:"v4"`
-	V6     bool   `yaml:"v6"`
+type DyngoConfiguration struct {
+	Cron                 string                        `yaml:"cron" validate:"required"`
+	Services             ServicesConfiguration         `yaml:"services" validate:"required,dive"`
+	IPv4AddressDetection AddressDetectionConfiguration `yaml:"v4AddressDetection" validate:"required"`
+	IPv6AddressDetection AddressDetectionConfiguration `yaml:"v6AddressDetection" validate:"required"`
+	LogLevel             string                        `yaml:"logLevel" validate:"oneof=trace debug info warning error fatal"`
+}
+
+type ServicesConfiguration struct {
+	Desec ServiceConfiguration `yaml:"desec" validate:"required_without_all"`
 }
 
 type ServiceConfiguration struct {
@@ -22,30 +28,20 @@ type ServiceConfiguration struct {
 	Domains  []DomainConfiguration `yaml:"domains" validate:"required,dive"`
 }
 
-type ServicesConfiguration struct {
-	Desec ServiceConfiguration `yaml:"desec" validate:"required_without_all"`
+type DomainConfiguration struct {
+	Domain string `yaml:"domain" validate:"required,hostname"`
+	V4     bool   `yaml:"v4"`
+	V6     bool   `yaml:"v6"`
 }
 
-type IPv4AddressDetectionConfiguration struct {
+type AddressDetectionConfiguration struct {
 	Web string `yaml:"web" validate:"required,url"`
-}
-
-type IPv6AddressDetectionConfiguration struct {
-	Web string `yaml:"web" validate:"required,url"`
-}
-
-type DyngoConfiguration struct {
-	Cron                 string                            `yaml:"cron" validate:"required"`
-	Services             ServicesConfiguration             `yaml:"services" validate:"required,dive"`
-	IPv4AddressDetection IPv4AddressDetectionConfiguration `yaml:"v4AddressDetection" validate:"required"`
-	IPv6AddressDetection IPv6AddressDetectionConfiguration `yaml:"v6AddressDetection" validate:"required"`
-	LogLevel             string                            `yaml:"logLevel" validate:"oneof=trace debug info warning error fatal"`
 }
 
 var Cron string
 var Services ServicesConfiguration
-var IPv4AddressDetection IPv4AddressDetectionConfiguration
-var IPv6AddressDetection IPv6AddressDetectionConfiguration
+var IPv4AddressDetection AddressDetectionConfiguration
+var IPv6AddressDetection AddressDetectionConfiguration
 var LogLevel int
 
 func getConfigurationFileAsBytes(path string) []byte {
