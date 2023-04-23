@@ -14,30 +14,30 @@ var Warn *log.Logger
 var Error *log.Logger
 var Fatal *log.Logger
 
-type LogLevel struct {
+type logLevel struct {
 	Prefix   string
 	Name     string
 	AsNumber int
 }
 
-var LogLevelTrace LogLevel = LogLevel{Prefix: "TRC", Name: "trace", AsNumber: 1}
-var LogLevelDebug LogLevel = LogLevel{Prefix: "DBG", Name: "debug", AsNumber: 2}
-var LogLevelInfo LogLevel = LogLevel{Prefix: "INF", Name: "info", AsNumber: 3}
-var LogLevelWarning LogLevel = LogLevel{Prefix: "WRN", Name: "warn", AsNumber: 4}
-var LogLevelError LogLevel = LogLevel{Prefix: "ERR", Name: "error", AsNumber: 5}
-var LogLevelFatal LogLevel = LogLevel{Prefix: "FTL", Name: "fatal", AsNumber: 6}
+type logWriter struct {
+	level logLevel
+}
 
-var level LogLevel = LogLevelDebug
+var LogLevelTrace logLevel = logLevel{Prefix: "TRC", Name: "trace", AsNumber: 1}
+var LogLevelDebug logLevel = logLevel{Prefix: "DBG", Name: "debug", AsNumber: 2}
+var LogLevelInfo logLevel = logLevel{Prefix: "INF", Name: "info", AsNumber: 3}
+var LogLevelWarning logLevel = logLevel{Prefix: "WRN", Name: "warn", AsNumber: 4}
+var LogLevelError logLevel = logLevel{Prefix: "ERR", Name: "error", AsNumber: 5}
+var LogLevelFatal logLevel = logLevel{Prefix: "FTL", Name: "fatal", AsNumber: 6}
+
+var level logLevel = LogLevelDebug
 
 func SetLogLevel(levelAsString string) {
-	level, _ = LogLevelByString(levelAsString)
+	level, _ = getLogLevelByString(levelAsString)
 }
 
-type logWriter struct {
-	level LogLevel
-}
-
-func LogLevelByString(level string) (LogLevel, error) {
+func getLogLevelByString(level string) (logLevel, error) {
 	if level == LogLevelTrace.Name {
 		return LogLevelTrace, nil
 	} else if level == LogLevelDebug.Name {
