@@ -2,47 +2,45 @@ package config
 
 import (
 	"dyngo/logger"
-	"encoding/json"
 	"errors"
 	"io"
 	"os"
 	"strings"
 
-	"github.com/tidwall/jsonc"
-
 	"github.com/go-playground/validator/v10"
+	"gopkg.in/yaml.v2"
 )
 
 type DomainConfiguration struct {
-	Domain string `json:"domain" validate:"required,hostname"`
-	V4     bool   `json:"v4"`
-	V6     bool   `json:"v6"`
+	Domain string `yaml:"domain" validate:"required,hostname"`
+	V4     bool   `yaml:"v4"`
+	V6     bool   `yaml:"v6"`
 }
 
 type ServiceConfiguration struct {
-	Username string                `json:"username" validate:"required"`
-	Password string                `json:"password" validate:"required"`
-	Domains  []DomainConfiguration `json:"domains" validate:"required,dive"`
+	Username string                `yaml:"username" validate:"required"`
+	Password string                `yaml:"password" validate:"required"`
+	Domains  []DomainConfiguration `yaml:"domains" validate:"required,dive"`
 }
 
 type ServicesConfiguration struct {
-	Desec ServiceConfiguration `json:"desec" validate:"required_without_all"`
+	Desec ServiceConfiguration `yaml:"desec" validate:"required_without_all"`
 }
 
 type IPv4AddressDetectionConfiguration struct {
-	Web string `json:"web" validate:"required,url"`
+	Web string `yaml:"web" validate:"required,url"`
 }
 
 type IPv6AddressDetectionConfiguration struct {
-	Web string `json:"web" validate:"required,url"`
+	Web string `yaml:"web" validate:"required,url"`
 }
 
 type DyngoConfiguration struct {
-	Cron                 string                            `json:"cron" validate:"required"`
-	Services             ServicesConfiguration             `json:"services" validate:"required,dive"`
-	IPv4AddressDetection IPv4AddressDetectionConfiguration `json:"v4AddressDetection" validate:"required"`
-	IPv6AddressDetection IPv6AddressDetectionConfiguration `json:"v6AddressDetection" validate:"required"`
-	LogLevel             string                            `json:"logLevel"`
+	Cron                 string                            `yaml:"cron" validate:"required"`
+	Services             ServicesConfiguration             `yaml:"services" validate:"required,dive"`
+	IPv4AddressDetection IPv4AddressDetectionConfiguration `yaml:"v4AddressDetection" validate:"required"`
+	IPv6AddressDetection IPv6AddressDetectionConfiguration `yaml:"v6AddressDetection" validate:"required"`
+	LogLevel             string                            `yaml:"logLevel"`
 }
 
 var Cron string
@@ -51,33 +49,33 @@ var IPv4AddressDetection IPv4AddressDetectionConfiguration
 var IPv6AddressDetection IPv6AddressDetectionConfiguration
 var LogLevel int
 
-func getConfigurationFileAsBytes() []byte {
-	var pathToConfiguration = "/etc/dyngo/config.jsonc"
-
-	if _, err := os.Stat(pathToConfiguration); errors.Is(err, os.ErrNotExist) {
-		logger.Error.Println("Configuration file " + pathToConfiguration + " missing!")
+func getConfigurationFileAsBytes(path string) []byte {
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		logger.Error.Println("Configuration file " + path + " missing!")
 		os.Exit(1)
 	}
 
-	jsonFile, err := os.Open(pathToConfiguration)
+	yamlFile, err := os.Open(path)
 
 	if err != nil {
-		logger.Error.Println("Error when reading " + pathToConfiguration + ": " + err.Error())
+		logger.Error.Println("Error when reading " + path + ": " + err.Error())
 		os.Exit(1)
+	} else {
+		logger.Info.Println("Using configuration file " + path)
 	}
 
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
+	// defer the closing of our yamlFile so that we can parse it later on
+	defer yamlFile.Close()
 
-	byteValue, _ := io.ReadAll(jsonFile)
+	byteValue, _ := io.ReadAll(yamlFile)
 
 	return byteValue
 }
 
-func Parse() {
+func Parse(path string) {
 	var config DyngoConfiguration
 
-	json.Unmarshal(jsonc.ToJSON(getConfigurationFileAsBytes()), &config)
+	yaml.Unmarshal(getConfigurationFileAsBytes(path), &config)
 
 	v := validator.New()
 	err := v.Struct(config)

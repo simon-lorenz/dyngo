@@ -1,0 +1,14 @@
+cron: "0 */5 * * * *"
+services:
+  desec:
+    username: "me.dedyn.io"
+    password: "SECRET_TOKEN"
+    domains:
+      - domain: "test.me.dedyn.io"
+        v4: true
+        v6: false
+v4AddressDetection:
+  web: "https://checkipv4.dedyn.io"
+v6AddressDetection:
+  web: "https://checkipv6.dedyn.io"
+logLevel: "info"

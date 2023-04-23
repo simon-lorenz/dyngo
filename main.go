@@ -5,6 +5,7 @@ import (
 	"dyngo/detection"
 	"dyngo/logger"
 	"dyngo/services"
+	"flag"
 	"fmt"
 
 	"github.com/robfig/cron/v3"
@@ -13,8 +14,14 @@ import (
 var currentIPv4 string
 var currentIPv6 string
 
+type Flags struct {
+	config *string
+}
+
 func main() {
 	c := cron.New(cron.WithSeconds())
+
+	var flags Flags = setupAndParseFlags()
 
 	fmt.Println("")
 	fmt.Println("===========================")
@@ -23,9 +30,10 @@ func main() {
 	fmt.Println("===========================")
 	fmt.Println("")
 
-	config.Parse()
+	config.Parse(*flags.config)
 
 	logger.LogLevel = config.LogLevel
+
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
 
 	// I should probably loop over Services, but it's a struct and I don't know
@@ -38,6 +46,16 @@ func main() {
 
 	updateDynDNS() // Run immediatly once
 	c.Run()        // Run cron
+}
+
+func setupAndParseFlags() Flags {
+	var flags Flags
+
+	flags.config = flag.String("config", "/etc/dyngo/config.yaml", "path to configuration file")
+
+	flag.Parse()
+
+	return flags
 }
 
 func updateDynDNS() {
