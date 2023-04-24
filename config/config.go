@@ -55,8 +55,6 @@ func getConfigurationFileAsBytes(path string) []byte {
 	if err != nil {
 		logger.Error.Println("Error when reading " + path + ": " + err.Error())
 		os.Exit(1)
-	} else {
-		logger.Info.Println("Using configuration file " + path)
 	}
 
 	// defer the closing of our yamlFile so that we can parse it later on
