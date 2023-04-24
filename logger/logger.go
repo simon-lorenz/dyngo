@@ -78,5 +78,5 @@ func init() {
 	Info = log.New(logWriter{level: LogLevelInfo}, "", 0)
 	Warn = log.New(logWriter{level: LogLevelWarning}, "", 0)
 	Error = log.New(logWriter{level: LogLevelError}, "", 0)
-	Fatal = log.New(logWriter{level: LogLevelInfo}, "", 0)
+	Fatal = log.New(logWriter{level: LogLevelFatal}, "", 0)
 }
