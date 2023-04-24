@@ -46,14 +46,14 @@ var LogLevel string
 
 func getConfigurationFileAsBytes(path string) []byte {
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-		logger.Error.Println("Configuration file " + path + " missing!")
+		logger.Fatal.Println("Configuration file " + path + " missing!")
 		os.Exit(1)
 	}
 
 	yamlFile, err := os.Open(path)
 
 	if err != nil {
-		logger.Error.Println("Error when reading " + path + ": " + err.Error())
+		logger.Fatal.Println("Error when reading " + path + ": " + err.Error())
 		os.Exit(1)
 	}
 
@@ -80,7 +80,7 @@ func Parse(path string) {
 			logger.Warn.Println("Validation error in configuration: " + e.Error())
 		}
 
-		logger.Error.Println("Configuration file is invalid")
+		logger.Fatal.Println("Configuration file is invalid")
 		os.Exit(1)
 	}
 
