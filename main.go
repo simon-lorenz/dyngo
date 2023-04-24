@@ -19,6 +19,8 @@ type Flags struct {
 	config *string
 }
 
+var version = "development"
+
 func main() {
 	c := cron.New(cron.WithSeconds())
 
@@ -58,7 +60,7 @@ func setupAndParseFlags() Flags {
 func printWelcomeMessage() {
 	fmt.Printf("%s\n", strings.Repeat("=", 34))
 	fmt.Printf("==   Welcome to DynGO! %s   ==\n", strings.Repeat(" ", 6))
-	fmt.Printf("==   Version: %-15s   ==\n", "0.0.0")
+	fmt.Printf("==   Version: %-15s   ==\n", version)
 	fmt.Printf("%s\n", strings.Repeat("=", 34))
 }
 
