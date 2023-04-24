@@ -17,19 +17,19 @@ var Fatal *log.Logger
 type logLevel struct {
 	Prefix   string
 	Name     string
-	AsNumber int
+	Priority int
 }
 
 type logWriter struct {
 	level logLevel
 }
 
-var LogLevelTrace logLevel = logLevel{Prefix: "TRC", Name: "trace", AsNumber: 1}
-var LogLevelDebug logLevel = logLevel{Prefix: "DBG", Name: "debug", AsNumber: 2}
-var LogLevelInfo logLevel = logLevel{Prefix: "INF", Name: "info", AsNumber: 3}
-var LogLevelWarning logLevel = logLevel{Prefix: "WRN", Name: "warn", AsNumber: 4}
-var LogLevelError logLevel = logLevel{Prefix: "ERR", Name: "error", AsNumber: 5}
-var LogLevelFatal logLevel = logLevel{Prefix: "FTL", Name: "fatal", AsNumber: 6}
+var LogLevelTrace logLevel = logLevel{Prefix: "TRC", Name: "trace", Priority: 1}
+var LogLevelDebug logLevel = logLevel{Prefix: "DBG", Name: "debug", Priority: 2}
+var LogLevelInfo logLevel = logLevel{Prefix: "INF", Name: "info", Priority: 3}
+var LogLevelWarning logLevel = logLevel{Prefix: "WRN", Name: "warn", Priority: 4}
+var LogLevelError logLevel = logLevel{Prefix: "ERR", Name: "error", Priority: 5}
+var LogLevelFatal logLevel = logLevel{Prefix: "FTL", Name: "fatal", Priority: 6}
 
 var level logLevel = LogLevelDebug
 
@@ -64,7 +64,7 @@ func LogDynDnsUpdate(service, domain, ip string, err error) {
 }
 
 func (writer logWriter) Write(bytes []byte) (int, error) {
-	if writer.level.AsNumber >= level.AsNumber {
+	if writer.level.Priority >= level.Priority {
 		return fmt.Print(time.Now().UTC().Format(time.RFC3339) + " [" + writer.level.Prefix + "] " + string(bytes))
 	} else {
 
