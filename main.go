@@ -7,6 +7,7 @@ import (
 	"dyngo/services"
 	"flag"
 	"fmt"
+	"strings"
 
 	"github.com/robfig/cron/v3"
 )
@@ -23,12 +24,7 @@ func main() {
 
 	var flags Flags = setupAndParseFlags()
 
-	fmt.Println("")
-	fmt.Println("===========================")
-	fmt.Println("==   Welcome to DynGO!   ==")
-	fmt.Println("==   Version: 0.0.1      ==")
-	fmt.Println("===========================")
-	fmt.Println("")
+	printWelcomeMessage()
 
 	config.Parse(*flags.config)
 
@@ -57,6 +53,13 @@ func setupAndParseFlags() Flags {
 	flag.Parse()
 
 	return flags
+}
+
+func printWelcomeMessage() {
+	fmt.Printf("%s\n", strings.Repeat("=", 34))
+	fmt.Printf("==   Welcome to DynGO! %s   ==\n", strings.Repeat(" ", 6))
+	fmt.Printf("==   Version: %-15s   ==\n", "0.0.0")
+	fmt.Printf("%s\n", strings.Repeat("=", 34))
 }
 
 func updateDynDNS() {
