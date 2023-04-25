@@ -39,7 +39,7 @@ type DetectionConfiguration struct {
 }
 
 type AddressDetectionConfiguration struct {
-	Web string `yaml:"web" validate:"required,url"`
+	Web string `yaml:"web" validate:"omitempty,url"`
 }
 
 type LogConfiguration struct {

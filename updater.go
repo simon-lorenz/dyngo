@@ -6,18 +6,20 @@ import (
 	"dyngo/services"
 )
 
-var currentIPv4 string = "Unkown"
-var currentIPv6 string = "Unkown"
+var currentIPv4 string = "Unknown"
+var currentIPv6 string = "Unknown"
 
 func runDynDNSUpdater() {
 	var upstreamIPv4 string
 	var upstreamIPv6 string
+	var err error
 
 	if services.AtLeastOneDomainRequires("v4") {
-		upstreamIPv4 = detection.GetIPv4()
+		upstreamIPv4, err = detection.GetIPv4()
 
-		if upstreamIPv4 == "" {
-			logger.Error.Printf("Could not determine IPv4, skipping...")
+		if err != nil {
+			logger.Error.Println(err.Error())
+			logger.Error.Println("Skipping update")
 			return
 		}
 
@@ -25,14 +27,13 @@ func runDynDNSUpdater() {
 			logger.Info.Printf("Detected change in IPv4 Address: '%v' -> '%v' \n", currentIPv4, upstreamIPv4)
 			currentIPv4 = upstreamIPv4
 		}
-
 	}
 
 	if services.AtLeastOneDomainRequires("v6") {
-		upstreamIPv6 = detection.GetIPv6()
+		upstreamIPv6, err = detection.GetIPv6()
 
-		if upstreamIPv6 == "" {
-			logger.Error.Printf("Could not determine IPv6, skipping...")
+		if err != nil {
+			logger.Error.Println(err.Error())
 			return
 		}
 

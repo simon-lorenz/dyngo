@@ -1,20 +1,11 @@
 package detection
 
 import (
-	"dyngo/config"
 	"dyngo/logger"
 	"io"
 	"net/http"
 	"strconv"
 )
-
-func GetIPv4() string {
-	return getIpAddressFromExternalService(config.Detection.V4.Web)
-}
-
-func GetIPv6() string {
-	return getIpAddressFromExternalService(config.Detection.V6.Web)
-}
 
 func getIpAddressFromExternalService(url string) string {
 	var resp, err = http.Get(url)
