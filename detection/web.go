@@ -9,11 +9,11 @@ import (
 )
 
 func GetIPv4() string {
-	return getIpAddressFromExternalService(config.IPv4AddressDetection.Web)
+	return getIpAddressFromExternalService(config.Detection.V4.Web)
 }
 
 func GetIPv6() string {
-	return getIpAddressFromExternalService(config.IPv6AddressDetection.Web)
+	return getIpAddressFromExternalService(config.Detection.V6.Web)
 }
 
 func getIpAddressFromExternalService(url string) string {

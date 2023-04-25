@@ -7,8 +7,9 @@ services:
       - domain: "test.me.dedyn.io"
         v4: true
         v6: false
-v4AddressDetection:
-  web: "https://checkipv4.dedyn.io"
-v6AddressDetection:
-  web: "https://checkipv6.dedyn.io"
 logLevel: "info"
+detection:
+  v4:
+    web: "https://checkipv4.dedyn.io"
+  v6:
+    web: "https://checkipv6.dedyn.io"

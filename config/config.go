@@ -11,11 +11,10 @@ import (
 )
 
 type DyngoConfiguration struct {
-	Cron                 string                        `yaml:"cron" validate:"required"`
-	Services             ServicesConfiguration         `yaml:"services" validate:"required,dive"`
-	IPv4AddressDetection AddressDetectionConfiguration `yaml:"v4AddressDetection" validate:"required"`
-	IPv6AddressDetection AddressDetectionConfiguration `yaml:"v6AddressDetection" validate:"required"`
-	LogLevel             string                        `yaml:"logLevel" validate:"oneof=trace debug info warning error fatal"`
+	Cron      string                 `yaml:"cron" validate:"required"`
+	Services  ServicesConfiguration  `yaml:"services" validate:"required,dive"`
+	Detection DetectionConfiguration `yaml:"detection" validate:"required"`
+	LogLevel  string                 `yaml:"logLevel" validate:"oneof=trace debug info warning error fatal"`
 }
 
 type ServicesConfiguration struct {
@@ -34,14 +33,18 @@ type DomainConfiguration struct {
 	V6     bool   `yaml:"v6"`
 }
 
+type DetectionConfiguration struct {
+	V4 AddressDetectionConfiguration `yaml:"v4"`
+	V6 AddressDetectionConfiguration `yaml:"v6"`
+}
+
 type AddressDetectionConfiguration struct {
 	Web string `yaml:"web" validate:"required,url"`
 }
 
 var Cron string
 var Services ServicesConfiguration
-var IPv4AddressDetection AddressDetectionConfiguration
-var IPv6AddressDetection AddressDetectionConfiguration
+var Detection DetectionConfiguration
 var LogLevel string
 
 func getConfigurationFileAsBytes(path string) []byte {
@@ -86,7 +89,6 @@ func Parse(path string) {
 
 	Cron = config.Cron
 	Services = config.Services
-	IPv4AddressDetection = config.IPv4AddressDetection
-	IPv6AddressDetection = config.IPv6AddressDetection
+	Detection = config.Detection
 	LogLevel = config.LogLevel
 }
