@@ -16,7 +16,7 @@ type desec struct {
 	domains    []DynDnsDomain
 }
 
-func NewDesec(config config.ServiceConfiguration) *desec {
+func NewDesec(config config.ServiceConfiguration) DynDnsService {
 	var result desec = desec{
 		username: config.Username,
 		password: config.Password,
