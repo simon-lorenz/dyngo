@@ -12,9 +12,9 @@ import (
 
 type DyngoConfiguration struct {
 	Cron      string                 `yaml:"cron" validate:"required"`
-	Services  ServicesConfiguration  `yaml:"services" validate:"required,dive"`
-	Detection DetectionConfiguration `yaml:"detection" validate:"required,dive"`
-	Log       LogConfiguration       `yaml:"log" validate:"required,dive"`
+	Services  ServicesConfiguration  `yaml:"services" validate:"required"`
+	Detection DetectionConfiguration `yaml:"detection" validate:"required"`
+	Log       LogConfiguration       `yaml:"log" validate:"required"`
 }
 
 type ServicesConfiguration struct {
