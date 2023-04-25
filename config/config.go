@@ -13,8 +13,8 @@ import (
 type DyngoConfiguration struct {
 	Cron      string                 `yaml:"cron" validate:"required"`
 	Services  ServicesConfiguration  `yaml:"services" validate:"required,dive"`
-	Detection DetectionConfiguration `yaml:"detection" validate:"required"`
-	LogLevel  string                 `yaml:"logLevel" validate:"oneof=trace debug info warning error fatal"`
+	Detection DetectionConfiguration `yaml:"detection" validate:"required,dive"`
+	Log       LogConfiguration       `yaml:"log" validate:"required,dive"`
 }
 
 type ServicesConfiguration struct {
@@ -42,10 +42,14 @@ type AddressDetectionConfiguration struct {
 	Web string `yaml:"web" validate:"required,url"`
 }
 
+type LogConfiguration struct {
+	Level string `yaml:"level" validate:"oneof=trace debug info warning error fatal"`
+}
+
 var Cron string
 var Services ServicesConfiguration
 var Detection DetectionConfiguration
-var LogLevel string
+var Log LogConfiguration
 
 func getConfigurationFileAsBytes(path string) []byte {
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
@@ -90,5 +94,5 @@ func Parse(path string) {
 	Cron = config.Cron
 	Services = config.Services
 	Detection = config.Detection
-	LogLevel = config.LogLevel
+	Log = config.Log
 }

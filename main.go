@@ -23,7 +23,7 @@ func main() {
 	printWelcomeMessage()
 
 	config.Parse(*flags.config)
-	logger.SetLogLevel(config.LogLevel)
+	logger.SetLogLevel(config.Log.Level)
 	logger.Info.Println("Using configuration file " + *flags.config)
 
 	// I should probably loop over Services, but it's a struct and I don't know
