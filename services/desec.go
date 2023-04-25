@@ -9,7 +9,6 @@ import (
 )
 
 type desec struct {
-	name       string
 	username   string
 	password   string
 	targetIPv4 string
@@ -19,7 +18,6 @@ type desec struct {
 
 func NewDesec(config config.ServiceConfiguration) *desec {
 	var result desec = desec{
-		name:     "deSEC.io",
 		username: config.Username,
 		password: config.Password,
 	}
@@ -78,7 +76,7 @@ func (service *desec) GetDomains() []DynDnsDomain {
 }
 
 func (service *desec) GetName() string {
-	return service.name
+	return "deSEC.io"
 }
 
 func (service *desec) sendUpdateRequest(baseUrl, host, ipAddress string) error {
