@@ -35,6 +35,14 @@ func NewDesec(config config.ServiceConfiguration) DynDnsService {
 	return &result
 }
 
+func (service *desec) GetDomains() []DynDnsDomain {
+	return service.domains
+}
+
+func (service *desec) GetName() string {
+	return "deSEC.io"
+}
+
 func (service *desec) SetTargetIPv4(ip string) {
 	service.targetIPv4 = ip
 }
@@ -69,14 +77,6 @@ func (service *desec) UpdateAllDomains() {
 			}
 		}
 	}
-}
-
-func (service *desec) GetDomains() []DynDnsDomain {
-	return service.domains
-}
-
-func (service *desec) GetName() string {
-	return "deSEC.io"
 }
 
 func (service *desec) sendUpdateRequest(baseUrl, host, ipAddress string) error {
