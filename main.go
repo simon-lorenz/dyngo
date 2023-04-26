@@ -29,7 +29,7 @@ func main() {
 	// I should probably loop over Services, but it's a struct and I don't know
 	// what golangs equivalent to Object.keys() is...
 	if config.Services.Desec.Domains != nil {
-		services.Register(services.NewDesec(config.Services.Desec))
+		services.Register(services.NewDesec())
 	}
 
 	// Run cron
