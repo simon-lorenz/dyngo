@@ -16,7 +16,7 @@ func runDynDNSUpdater() {
 
 		if err != nil {
 			logger.Error.Println(err.Error())
-			return
+			IPv4Changed = false
 		}
 	}
 
@@ -25,7 +25,7 @@ func runDynDNSUpdater() {
 
 		if err != nil {
 			logger.Error.Println(err.Error())
-			return
+			IPv6Changed = false
 		}
 	}
 

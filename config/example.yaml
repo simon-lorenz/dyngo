@@ -1,5 +1,5 @@
 log:
-  level: "info"
+  level: "debug"
 cron: "0 */5 * * * *"
 services:
   desec:
@@ -19,5 +19,7 @@ services:
 detection:
   v4:
     web: "https://checkipv4.dedyn.io"
+    cmd: null
   v6:
-    web: "https://checkipv6.dedyn.io"
+    web: null
+    cmd: "echo '2a00:1450:4001:831::2003'"

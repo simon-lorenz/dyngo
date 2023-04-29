@@ -41,6 +41,7 @@ type DetectionConfiguration struct {
 
 type AddressDetectionConfiguration struct {
 	Web string `yaml:"web" validate:"omitempty,url"`
+	Cmd string `yaml:"cmd"`
 }
 
 type LogConfiguration struct {

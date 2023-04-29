@@ -75,14 +75,14 @@ func (writer logWriter) Write(bytes []byte) (int, error) {
 	}
 }
 
-func NewServiceLoggerCollection(serviceName string) *LoggerCollection {
+func NewLoggerCollection(prefix string) *LoggerCollection {
 	return &LoggerCollection{
-		Trace: log.New(logWriter{level: LogLevelTrace}, "["+serviceName+"] ", 0),
-		Debug: log.New(logWriter{level: LogLevelDebug}, "["+serviceName+"] ", 0),
-		Info:  log.New(logWriter{level: LogLevelInfo}, "["+serviceName+"] ", 0),
-		Warn:  log.New(logWriter{level: LogLevelWarning}, "["+serviceName+"] ", 0),
-		Error: log.New(logWriter{level: LogLevelError}, "["+serviceName+"] ", 0),
-		Fatal: log.New(logWriter{level: LogLevelFatal}, "["+serviceName+"] ", 0),
+		Trace: log.New(logWriter{level: LogLevelTrace}, "["+prefix+"] ", 0),
+		Debug: log.New(logWriter{level: LogLevelDebug}, "["+prefix+"] ", 0),
+		Info:  log.New(logWriter{level: LogLevelInfo}, "["+prefix+"] ", 0),
+		Warn:  log.New(logWriter{level: LogLevelWarning}, "["+prefix+"] ", 0),
+		Error: log.New(logWriter{level: LogLevelError}, "["+prefix+"] ", 0),
+		Fatal: log.New(logWriter{level: LogLevelFatal}, "["+prefix+"] ", 0),
 	}
 
 }
