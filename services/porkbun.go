@@ -1,3 +1,9 @@
+/*
+Reference:
+- https://porkbun.com/api/json/v3/documentation
+- https://github.com/ddclient/ddclient/blob/841ffcbdaa009687e5fb390c4527055e929f959a/ddclient.in#L7199
+*/
+
 package services
 
 import (
@@ -21,17 +27,15 @@ func NewPorkbun() DynDnsService {
 	}
 }
 
-func (service *PorkbunService) UpdateAllDomains(TargetIPv4, TargetIPv6 string) {
-	/*
-		Reference:
-		- https://porkbun.com/api/json/v3/documentation
-		- https://github.com/ddclient/ddclient/blob/841ffcbdaa009687e5fb390c4527055e929f959a/ddclient.in#L7199
-	*/
+func (service *PorkbunService) UpdateIPv4(Target string) {
+	if Target == "" {
+		return
+	}
 
 	for _, domain := range service.Domains {
 		subdomain, host := helpers.ExtractSubdomain((domain.Domain))
 
-		if domain.V4 && TargetIPv4 != "" {
+		if domain.V4 {
 			currentIpAddress, err := service.getExistingRecord("A", host, subdomain)
 
 			if err != nil {
@@ -40,18 +44,28 @@ func (service *PorkbunService) UpdateAllDomains(TargetIPv4, TargetIPv6 string) {
 			}
 
 			if currentIpAddress == "" {
-				service.createRecord(host, subdomain, "A", TargetIPv4)
+				service.createRecord(host, subdomain, "A", Target)
 			} else {
-				if currentIpAddress != TargetIPv4 {
-					err := service.updateRecord(host, subdomain, "A", TargetIPv4)
-					service.LogDynDnsUpdate(domain.Domain, TargetIPv4, err)
+				if currentIpAddress != Target {
+					err := service.updateRecord(host, subdomain, "A", Target)
+					service.LogDynDnsUpdate(domain.Domain, Target, err)
 				} else {
 					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Domain)
 				}
 			}
 		}
+	}
+}
 
-		if domain.V6 && TargetIPv6 != "" {
+func (service *PorkbunService) UpdateIPv6(Target string) {
+	if Target == "" {
+		return
+	}
+
+	for _, domain := range service.Domains {
+		subdomain, host := helpers.ExtractSubdomain((domain.Domain))
+
+		if domain.V4 {
 			currentIpAddress, err := service.getExistingRecord("AAAA", host, subdomain)
 
 			if err != nil {
@@ -60,11 +74,11 @@ func (service *PorkbunService) UpdateAllDomains(TargetIPv4, TargetIPv6 string) {
 			}
 
 			if currentIpAddress == "" {
-				service.createRecord(host, subdomain, "AAAA", TargetIPv6)
+				service.createRecord(host, subdomain, "AAAA", Target)
 			} else {
-				if currentIpAddress != TargetIPv6 {
-					err := service.updateRecord(host, subdomain, "AAAA", TargetIPv6)
-					service.LogDynDnsUpdate(domain.Domain, TargetIPv6, err)
+				if currentIpAddress != Target {
+					err := service.updateRecord(host, subdomain, "AAAA", Target)
+					service.LogDynDnsUpdate(domain.Domain, Target, err)
 				} else {
 					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Domain)
 				}

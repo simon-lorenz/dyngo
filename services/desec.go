@@ -16,27 +16,41 @@ func NewDesec() DynDnsService {
 		BaseService: NewBaseService("deSEC.io", config.Services.Desec)}
 }
 
-func (service *DesecService) UpdateAllDomains(TargetIPv4, TargetIPv6 string) {
+func (service *DesecService) UpdateIPv4(Target string) {
+	if Target == "" {
+		return
+	}
+
 	for i := range service.Domains {
 		domain := &service.Domains[i]
 
-		if domain.V4 && TargetIPv4 != "" {
-			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Domain, TargetIPv4)
+		if domain.V4 {
+			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Domain, Target)
 
 			if err == nil {
-				service.LogDynDnsUpdate(domain.Domain, TargetIPv4, nil)
+				service.LogDynDnsUpdate(domain.Domain, Target, nil)
 			} else {
-				service.LogDynDnsUpdate(domain.Domain, TargetIPv6, err)
+				service.LogDynDnsUpdate(domain.Domain, Target, err)
 			}
 		}
+	}
+}
 
-		if domain.V6 && TargetIPv6 != "" {
-			err := service.sendUpdateRequest("https://update6.dedyn.io", domain.Domain, TargetIPv6)
+func (service *DesecService) UpdateIPv6(Target string) {
+	if Target == "" {
+		return
+	}
+
+	for i := range service.Domains {
+		domain := &service.Domains[i]
+
+		if domain.V6 {
+			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Domain, Target)
 
 			if err == nil {
-				service.LogDynDnsUpdate(domain.Domain, TargetIPv4, nil)
+				service.LogDynDnsUpdate(domain.Domain, Target, nil)
 			} else {
-				service.LogDynDnsUpdate(domain.Domain, TargetIPv6, err)
+				service.LogDynDnsUpdate(domain.Domain, Target, err)
 			}
 		}
 	}

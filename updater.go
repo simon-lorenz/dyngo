@@ -30,10 +30,12 @@ func runDynDNSUpdater() {
 	}
 
 	for _, service := range services.Registered {
-		if IPv4Changed || IPv6Changed {
-			// TODO: Split into UpdateIPv4 and UpdateIPv6
-			service.UpdateAllDomains(detection.CurrentIPv4, detection.CurrentIPv6)
+		if IPv4Changed {
+			service.UpdateIPv4(detection.CurrentIPv4)
 		}
 
+		if IPv6Changed {
+			service.UpdateIPv6(detection.CurrentIPv6)
+		}
 	}
 }

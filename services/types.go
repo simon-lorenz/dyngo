@@ -6,7 +6,8 @@ import (
 )
 
 type DynDnsService interface {
-	UpdateAllDomains(string, string)
+	UpdateIPv4(string)
+	UpdateIPv6(string)
 
 	GetDomains() []config.DomainConfiguration
 	GetName() string
