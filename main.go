@@ -6,6 +6,7 @@ import (
 	"dyngo/services"
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/robfig/cron/v3"
@@ -26,8 +27,18 @@ func main() {
 	logger.SetLogLevel(config.Log.Level)
 	logger.Info.Println("Using configuration file " + *flags.config)
 
-	services.Register(services.NewDesec())
-	services.Register(services.NewPorkbun())
+	if config.Services.Desec != nil {
+		services.Register(services.NewDesec())
+	}
+
+	if config.Services.Porkbun != nil {
+		services.Register(services.NewPorkbun())
+	}
+
+	if len(services.Registered) == 0 {
+		logger.Fatal.Println("No services registered")
+		os.Exit(1)
+	}
 
 	// Run cron
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)

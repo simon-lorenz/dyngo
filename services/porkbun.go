@@ -23,7 +23,7 @@ type PorkbunService struct {
 
 func NewPorkbun() DynDnsService {
 	return &PorkbunService{
-		BaseService: NewBaseService("porkbun", config.Services.Porkbun),
+		BaseService: NewBaseService("porkbun", *config.Services.Porkbun),
 	}
 }
 
