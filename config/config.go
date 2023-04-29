@@ -2,8 +2,7 @@ package config
 
 import (
 	"dyngo/logger"
-	"errors"
-	"io"
+	"io/ioutil"
 	"os"
 
 	"github.com/go-playground/validator/v10"
@@ -54,24 +53,14 @@ var Detection DetectionConfiguration
 var Log LogConfiguration
 
 func getConfigurationFileAsBytes(path string) []byte {
-	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-		logger.Fatal.Println("Configuration file " + path + " missing!")
-		os.Exit(1)
-	}
-
-	yamlFile, err := os.Open(path)
+	file, err := ioutil.ReadFile(path)
 
 	if err != nil {
 		logger.Fatal.Println("Error when reading " + path + ": " + err.Error())
 		os.Exit(1)
 	}
 
-	// defer the closing of our yamlFile so that we can parse it later on
-	defer yamlFile.Close()
-
-	byteValue, _ := io.ReadAll(yamlFile)
-
-	return byteValue
+	return file
 }
 
 func Parse(path string) {
