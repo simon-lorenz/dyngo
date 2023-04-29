@@ -40,7 +40,7 @@ func RefreshIPv6() (bool, error) {
 	var UpstreamIPv6 string = ""
 
 	if config.Detection.V6.Web != "" {
-		UpstreamIPv6 = getIpAddressFromExternalService(config.Detection.V4.Web)
+		UpstreamIPv6 = getIpAddressFromExternalService(config.Detection.V6.Web)
 	} else if config.Detection.V6.Cmd != "" {
 		UpstreamIPv6 = getIpAddressFromCmd(config.Detection.V6.Cmd)
 	} else {
