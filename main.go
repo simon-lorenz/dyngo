@@ -26,11 +26,8 @@ func main() {
 	logger.SetLogLevel(config.Log.Level)
 	logger.Info.Println("Using configuration file " + *flags.config)
 
-	// I should probably loop over Services, but it's a struct and I don't know
-	// what golangs equivalent to Object.keys() is...
-	if config.Services.Desec.Domains != nil {
-		services.Register(services.NewDesec())
-	}
+	services.Register(services.NewDesec())
+	services.Register(services.NewPorkbun())
 
 	// Run cron
 	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)

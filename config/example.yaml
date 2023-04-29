@@ -9,6 +9,13 @@ services:
       - domain: "test.me.dedyn.io"
         v4: true
         v6: false
+  porkbun:
+    username: "API_KEY"
+    password: "SECRET_KEY"
+    domains:
+      - domain: "test.my.domain"
+        v4: true
+        v6: true
 detection:
   v4:
     web: "https://checkipv4.dedyn.io"

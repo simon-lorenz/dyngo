@@ -7,12 +7,23 @@ import (
 	"time"
 )
 
+// Global application logger
 var Trace *log.Logger
 var Debug *log.Logger
 var Info *log.Logger
 var Warn *log.Logger
 var Error *log.Logger
 var Fatal *log.Logger
+
+// Service logger
+type LoggerCollection struct {
+	Trace *log.Logger
+	Debug *log.Logger
+	Info  *log.Logger
+	Warn  *log.Logger
+	Error *log.Logger
+	Fatal *log.Logger
+}
 
 type logLevel struct {
 	Prefix   string
@@ -55,14 +66,6 @@ func getLogLevelByString(level string) (logLevel, error) {
 	}
 }
 
-func LogDynDnsUpdate(service, domain, ip string, err error) {
-	if err == nil {
-		Info.Printf("[%v] %v -> %v (success)", service, domain, ip)
-	} else {
-		Error.Printf("[%v] %v -> %v (%v)", service, domain, ip, err.Error())
-	}
-}
-
 func (writer logWriter) Write(bytes []byte) (int, error) {
 	if writer.level.Priority >= level.Priority {
 		return fmt.Print(time.Now().UTC().Format(time.RFC3339) + " [" + writer.level.Prefix + "] " + string(bytes))
@@ -72,11 +75,23 @@ func (writer logWriter) Write(bytes []byte) (int, error) {
 	}
 }
 
+func NewServiceLoggerCollection(serviceName string) *LoggerCollection {
+	return &LoggerCollection{
+		Trace: log.New(logWriter{level: LogLevelTrace}, "["+serviceName+"] ", 0),
+		Debug: log.New(logWriter{level: LogLevelDebug}, "["+serviceName+"] ", 0),
+		Info:  log.New(logWriter{level: LogLevelInfo}, "["+serviceName+"] ", 0),
+		Warn:  log.New(logWriter{level: LogLevelWarning}, "["+serviceName+"] ", 0),
+		Error: log.New(logWriter{level: LogLevelError}, "["+serviceName+"] ", 0),
+		Fatal: log.New(logWriter{level: LogLevelFatal}, "["+serviceName+"] ", 0),
+	}
+
+}
+
 func init() {
-	Trace = log.New(logWriter{level: LogLevelTrace}, "", 0)
-	Debug = log.New(logWriter{level: LogLevelDebug}, "", 0)
-	Info = log.New(logWriter{level: LogLevelInfo}, "", 0)
-	Warn = log.New(logWriter{level: LogLevelWarning}, "", 0)
-	Error = log.New(logWriter{level: LogLevelError}, "", 0)
-	Fatal = log.New(logWriter{level: LogLevelFatal}, "", 0)
+	Trace = log.New(logWriter{level: LogLevelTrace}, "[app] ", 0)
+	Debug = log.New(logWriter{level: LogLevelDebug}, "[app] ", 0)
+	Info = log.New(logWriter{level: LogLevelInfo}, "[app] ", 0)
+	Warn = log.New(logWriter{level: LogLevelWarning}, "[app] ", 0)
+	Error = log.New(logWriter{level: LogLevelError}, "[app] ", 0)
+	Fatal = log.New(logWriter{level: LogLevelFatal}, "[app] ", 0)
 }

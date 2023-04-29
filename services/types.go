@@ -1,19 +1,48 @@
 package services
 
+import (
+	"dyngo/config"
+	"dyngo/logger"
+)
+
 type DynDnsService interface {
-	UpdateAllDomains()
+	UpdateAllDomains(string, string)
 
-	GetDomains() []DynDnsDomain
+	GetDomains() []config.DomainConfiguration
 	GetName() string
-
-	SetTargetIPv4(string)
-	SetTargetIPv6(string)
 }
 
-type DynDnsDomain struct {
-	domain      string
-	V4          bool
-	V6          bool
-	currentIpV4 string
-	currentIPv6 string
+type BaseService struct {
+	Name     string
+	Username string
+	Password string
+	Domains  []config.DomainConfiguration
+	Config   config.ServiceConfiguration
+	Logger   *logger.LoggerCollection
+}
+
+func NewBaseService(name string, config config.ServiceConfiguration) BaseService {
+	return BaseService{
+		Username: config.Username,
+		Password: config.Password,
+		Domains:  config.Domains,
+		Name:     name,
+		Logger:   logger.NewServiceLoggerCollection(name),
+	}
+}
+
+func (service *BaseService) GetDomains() []config.DomainConfiguration {
+	return service.Domains
+}
+
+func (service *BaseService) GetName() string {
+	return service.Name
+}
+
+func (service *BaseService) LogDynDnsUpdate(domain, ip string, err error) {
+	if err == nil {
+		service.Logger.Info.Printf("Update '%v' -> '%v' successful", domain, ip)
+	} else {
+		service.Logger.Error.Printf("Update '%v' -> '%v' failed: %v", domain, ip, err.Error())
+	}
 }

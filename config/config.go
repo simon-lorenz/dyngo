@@ -18,7 +18,8 @@ type DyngoConfiguration struct {
 }
 
 type ServicesConfiguration struct {
-	Desec ServiceConfiguration `yaml:"desec" validate:"required_without_all"`
+	Desec   ServiceConfiguration `yaml:"desec" validate:"required_without_all"`
+	Porkbun ServiceConfiguration `yaml:"porkbun" validate:"required_without_all"`
 }
 
 type ServiceConfiguration struct {
