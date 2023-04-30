@@ -18,6 +18,11 @@ A DynDNS Client written in Go.
 
 You can download the most recent version of DynGO from the [releases page](https://github.com/simon-lorenz/dyngo/releases).
 
+```bash
+curl -L https://github.com/simon-lorenz/dyngo/releases/latest/download/dyngo-$(uname -m) -o /usr/bin/dyngo
+chmod +x /usr/bin/dyngo
+```
+
 ### Configuration
 
 DynGO is configured via YAML. You must prepare your configuration file before running DynGO. For available options see [config/example.yaml](config/example.yaml).
