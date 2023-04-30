@@ -10,50 +10,46 @@ var DetectionLogger = logger.NewLoggerCollection("detection")
 var CurrentIPv4 = ""
 var CurrentIPv6 = ""
 
-func RefreshIPv4() (bool, error) {
-	DetectionLogger.Debug.Println("Running IPv4 detection")
+func DetectIPAddress(protocol string) (bool, error) {
+	DetectionLogger.Debug.Printf("Running IP%s detection", protocol)
 
-	var UpstreamIPv4 string = ""
-
-	if config.Detection.Strategies.V4.Web != "" {
-		UpstreamIPv4 = getIpAddressFromExternalService(config.Detection.Strategies.V4.Web)
-	} else if config.Detection.Strategies.V4.Cmd != "" {
-		UpstreamIPv4 = getIpAddressFromCmd(config.Detection.Strategies.V4.Cmd)
-	} else {
-		return false, errors.New("Cannot determine IPv4 because no detection strategies are configured")
+	// TODO: Use enum or similar
+	if protocol != "v4" && protocol != "v6" {
+		return false, errors.New("Can not detect ip address for unknown protocol " + protocol)
 	}
 
-	if CurrentIPv4 != UpstreamIPv4 {
-		DetectionLogger.Info.Printf("Detected change in IPv4 Address: '%s' -> '%s' ", CurrentIPv4, UpstreamIPv4)
-		CurrentIPv4 = UpstreamIPv4
+	var CurrentIPAddress string = ""
+	var ExternalIPAddress string = ""
+	var Strategy config.DetectionStrategy
+
+	if protocol == "v4" {
+		CurrentIPAddress = CurrentIPv4
+		Strategy = config.Detection.Strategies.V4
+	} else {
+		CurrentIPAddress = CurrentIPv6
+		Strategy = config.Detection.Strategies.V6
+	}
+
+	if Strategy.Web != "" {
+		ExternalIPAddress = getIpAddressFromExternalService(Strategy.Web)
+	} else if Strategy.Cmd != "" {
+		ExternalIPAddress = getIpAddressFromCmd(Strategy.Cmd)
+	} else {
+		return false, errors.New("Cannot determine IP" + protocol + " because no detection strategies are configured")
+	}
+
+	if CurrentIPAddress != ExternalIPAddress {
+		DetectionLogger.Info.Printf("Detected change in IP%s Address: '%s' -> '%s' ", protocol, CurrentIPAddress, ExternalIPAddress)
+
+		if protocol == "v4" {
+			CurrentIPv4 = CurrentIPAddress
+		} else {
+			CurrentIPv6 = CurrentIPAddress
+		}
+
 		return true, nil
 	} else {
-		DetectionLogger.Debug.Println("No IPv4 change detected")
+		DetectionLogger.Debug.Printf("No IP%s change detected", protocol)
 		return false, nil
 	}
-
-}
-
-func RefreshIPv6() (bool, error) {
-	DetectionLogger.Debug.Println("Running IPv6 detection")
-
-	var UpstreamIPv6 string = ""
-
-	if config.Detection.Strategies.V6.Web != "" {
-		UpstreamIPv6 = getIpAddressFromExternalService(config.Detection.Strategies.V6.Web)
-	} else if config.Detection.Strategies.V6.Cmd != "" {
-		UpstreamIPv6 = getIpAddressFromCmd(config.Detection.Strategies.V6.Cmd)
-	} else {
-		return false, errors.New("Cannot determine IPv6 because no detection strategies are configured")
-	}
-
-	if CurrentIPv6 != UpstreamIPv6 {
-		DetectionLogger.Info.Printf("Detected change in IPv6 Address: '%s' -> '%s'", CurrentIPv6, UpstreamIPv6)
-		CurrentIPv6 = UpstreamIPv6
-		return true, nil
-	} else {
-		DetectionLogger.Debug.Println("No IPv6 change detected")
-		return false, nil
-	}
-
 }

@@ -12,7 +12,7 @@ func runDynDNSUpdater() {
 	var err error
 
 	if services.AtLeastOneDomainRequires("v4") {
-		IPv4Changed, err = detection.RefreshIPv4()
+		IPv4Changed, err = detection.DetectIPAddress("v4")
 
 		if err != nil {
 			logger.Error.Println(err.Error())
@@ -21,7 +21,7 @@ func runDynDNSUpdater() {
 	}
 
 	if services.AtLeastOneDomainRequires("v6") {
-		IPv6Changed, err = detection.RefreshIPv6()
+		IPv6Changed, err = detection.DetectIPAddress("v6")
 
 		if err != nil {
 			logger.Error.Println(err.Error())
