@@ -28,7 +28,7 @@ func NewBaseService(name string, config config.ServiceConfiguration) BaseService
 		Password: config.Password,
 		Domains:  config.Domains,
 		Name:     name,
-		Logger:   logger.NewLoggerCollection(name),
+		Logger:   logger.NewLoggerCollection("service/" + name),
 	}
 }
 
