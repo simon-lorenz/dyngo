@@ -34,7 +34,8 @@ type DomainConfiguration struct {
 
 type DetectionConfiguration struct {
 	Triggers *struct {
-		Cron string `yaml:"cron"`
+		Cron    string `yaml:"cron"`
+		Startup bool   `yaml:"startup"`
 	} `yaml:"triggers" validate:"required"`
 	Strategies *struct {
 		V4 DetectionStrategy `yaml:"v4"`

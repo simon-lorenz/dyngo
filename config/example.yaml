@@ -30,6 +30,9 @@ detection:
     # check periodically
     cron: "0 */5 * * * *"
 
+    # check once on program startup
+    startup: true
+
   # How should DynGO check if your wan ip address has changed?
   strategies:
     v4:

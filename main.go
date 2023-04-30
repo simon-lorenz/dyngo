@@ -49,7 +49,10 @@ func main() {
 	}
 
 	// Run once immediatly
-	runDynDNSUpdater()
+	if config.Detection.Triggers.Startup {
+		runDynDNSUpdater()
+	}
+
 }
 
 func setupAndParseFlags() Flags {
