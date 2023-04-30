@@ -41,10 +41,12 @@ func main() {
 	}
 
 	// Run cron
-	logger.Info.Printf("Initiating cron job with pattern %v\n", config.Cron)
-	c := cron.New(cron.WithSeconds())
-	c.AddFunc(config.Cron, runDynDNSUpdater)
-	defer c.Run()
+	if config.Detection.Triggers.Cron != "" {
+		logger.Info.Printf("Initiating cron job with pattern %v\n", config.Detection.Triggers.Cron)
+		c := cron.New(cron.WithSeconds())
+		c.AddFunc(config.Cron, runDynDNSUpdater)
+		defer c.Run()
+	}
 
 	// Run once immediatly
 	runDynDNSUpdater()

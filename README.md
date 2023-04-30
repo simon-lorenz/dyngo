@@ -8,7 +8,7 @@ A DynDNS Client written in Go.
 - ⚙️ YAML-based configuration
 - 🥇 Single binary deployment
 - 📗 Supports different DNS service providers
-- 🔎 Multiple ways to determine your public ip address
+- 🔎 Multiple strategies to determine your wan ip address
 
 > ⚠️ DynGO is neither very mature nor feature rich at the moment. I built it for myself, but maybe you'll find it useful too. If you would like to have a currently unsupported service provider or feature implemented, please open an [issue](https://github.com/simon-lorenz/dyngo/issues/new) or send a PR.
 

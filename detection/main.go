@@ -15,12 +15,12 @@ func RefreshIPv4() (bool, error) {
 
 	var UpstreamIPv4 string = ""
 
-	if config.Detection.V4.Web != "" {
-		UpstreamIPv4 = getIpAddressFromExternalService(config.Detection.V4.Web)
-	} else if config.Detection.V4.Cmd != "" {
-		UpstreamIPv4 = getIpAddressFromCmd(config.Detection.V4.Cmd)
+	if config.Detection.Strategies.V4.Web != "" {
+		UpstreamIPv4 = getIpAddressFromExternalService(config.Detection.Strategies.V4.Web)
+	} else if config.Detection.Strategies.V4.Cmd != "" {
+		UpstreamIPv4 = getIpAddressFromCmd(config.Detection.Strategies.V4.Cmd)
 	} else {
-		return false, errors.New("Cannot determine IPv4 because no detection mechanisms are configured")
+		return false, errors.New("Cannot determine IPv4 because no detection strategies are configured")
 	}
 
 	if CurrentIPv4 != UpstreamIPv4 {
@@ -39,12 +39,12 @@ func RefreshIPv6() (bool, error) {
 
 	var UpstreamIPv6 string = ""
 
-	if config.Detection.V6.Web != "" {
-		UpstreamIPv6 = getIpAddressFromExternalService(config.Detection.V6.Web)
-	} else if config.Detection.V6.Cmd != "" {
-		UpstreamIPv6 = getIpAddressFromCmd(config.Detection.V6.Cmd)
+	if config.Detection.Strategies.V6.Web != "" {
+		UpstreamIPv6 = getIpAddressFromExternalService(config.Detection.Strategies.V6.Web)
+	} else if config.Detection.Strategies.V6.Cmd != "" {
+		UpstreamIPv6 = getIpAddressFromCmd(config.Detection.Strategies.V6.Cmd)
 	} else {
-		return false, errors.New("Cannot determine IPv6 because no detection mechanisms are configured")
+		return false, errors.New("Cannot determine IPv6 because no detection strategies are configured")
 	}
 
 	if CurrentIPv6 != UpstreamIPv6 {

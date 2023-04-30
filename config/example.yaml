@@ -3,10 +3,6 @@ log:
   # trace, debug, info, warning, error, fatal
   level: "debug"
 
-# This cron expression controls how often DynGO checks
-# if your public ip address has changed
-cron: "0 */5 * * * *"
-
 # Available service providers. You only need to specify those that
 # you actually use.
 services:
@@ -25,11 +21,17 @@ services:
         v4: true
         v6: true
 
-# Detection mechanisms to determine your public ip address.
 detection:
-  v4:
-    web: "https://checkipv4.dedyn.io" # Specify a url that returns your ip as a string.
-    cmd: null
-  v6:
-    web: null
-    cmd: "echo '2a00:1450:4001:831::2003'" # Use a script that returns your ip as a string.
+  # When should DynGO check if your wan ip address has changed?
+  triggers:
+    # check periodically
+    cron: "0 */5 * * * *"
+
+  # How should DynGO check if your wan ip address has changed?
+  strategies:
+    v4:
+      web: "https://checkipv4.dedyn.io" # Specify a url that returns your ip as a string.
+      cmd: null
+    v6:
+      web: null
+      cmd: "echo '2a00:1450:4001:831::2003'" # Use a script that returns your ip as a string.

@@ -10,7 +10,6 @@ import (
 )
 
 type DyngoConfiguration struct {
-	Cron      string                 `yaml:"cron" validate:"required"`
 	Services  ServicesConfiguration  `yaml:"services" validate:"required"`
 	Detection DetectionConfiguration `yaml:"detection" validate:"required"`
 	Log       LogConfiguration       `yaml:"log" validate:"required"`
@@ -34,11 +33,16 @@ type DomainConfiguration struct {
 }
 
 type DetectionConfiguration struct {
-	V4 AddressDetectionConfiguration `yaml:"v4"`
-	V6 AddressDetectionConfiguration `yaml:"v6"`
+	Triggers *struct {
+		Cron string `yaml:"cron"`
+	} `yaml:"triggers" validate:"required"`
+	Strategies *struct {
+		V4 DetectionStrategy `yaml:"v4"`
+		V6 DetectionStrategy `yaml:"v6"`
+	} `yaml:"strategies" validate:"required"`
 }
 
-type AddressDetectionConfiguration struct {
+type DetectionStrategy struct {
 	Web string `yaml:"web" validate:"omitempty,url"`
 	Cmd string `yaml:"cmd"`
 }
@@ -82,7 +86,6 @@ func Parse(path string) {
 		os.Exit(1)
 	}
 
-	Cron = config.Cron
 	Services = config.Services
 	Detection = config.Detection
 	Log = config.Log
