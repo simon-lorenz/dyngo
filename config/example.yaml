@@ -13,6 +13,9 @@ services:
       - name: "test.me.dedyn.io"
         v4: true  # Controls whether an A record should be created or updated
         v6: false # Controls whether an AAAA record should be created or updated
+      - name: "test2.me.dedyn.io"
+        v4: false
+        v6: false
   porkbun:
     username: "API_KEY"
     password: "SECRET_KEY"
