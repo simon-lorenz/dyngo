@@ -27,9 +27,9 @@ type ServiceConfiguration struct {
 }
 
 type DomainConfiguration struct {
-	Domain string `yaml:"domain" validate:"required,hostname"`
-	V4     bool   `yaml:"v4"`
-	V6     bool   `yaml:"v6"`
+	Name string `yaml:"name" validate:"required,hostname"`
+	V4   bool   `yaml:"v4"`
+	V6   bool   `yaml:"v6"`
 }
 
 type DetectionConfiguration struct {

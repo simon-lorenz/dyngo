@@ -10,14 +10,14 @@ services:
     username: "me.dedyn.io"
     password: "SECRET_TOKEN"
     domains:
-      - domain: "test.me.dedyn.io"
+      - name: "test.me.dedyn.io"
         v4: true  # Controls whether an A record should be created or updated
         v6: false # Controls whether an AAAA record should be created or updated
   porkbun:
     username: "API_KEY"
     password: "SECRET_KEY"
     domains:
-      - domain: "test.my.domain"
+      - name: "test.my.domain"
         v4: true
         v6: true
 

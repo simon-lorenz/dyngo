@@ -33,7 +33,7 @@ func (service *PorkbunService) UpdateIPv4(Target string) {
 	}
 
 	for _, domain := range service.Domains {
-		subdomain, host := helpers.ExtractSubdomain((domain.Domain))
+		subdomain, host := helpers.ExtractSubdomain((domain.Name))
 
 		if domain.V4 {
 			currentIpAddress, err := service.getExistingRecord("A", host, subdomain)
@@ -48,9 +48,9 @@ func (service *PorkbunService) UpdateIPv4(Target string) {
 			} else {
 				if currentIpAddress != Target {
 					err := service.updateRecord(host, subdomain, "A", Target)
-					service.LogDynDnsUpdate(domain.Domain, Target, err)
+					service.LogDynDnsUpdate(domain.Name, Target, err)
 				} else {
-					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Domain)
+					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
 				}
 			}
 		}
@@ -63,7 +63,7 @@ func (service *PorkbunService) UpdateIPv6(Target string) {
 	}
 
 	for _, domain := range service.Domains {
-		subdomain, host := helpers.ExtractSubdomain((domain.Domain))
+		subdomain, host := helpers.ExtractSubdomain((domain.Name))
 
 		if domain.V4 {
 			currentIpAddress, err := service.getExistingRecord("AAAA", host, subdomain)
@@ -78,9 +78,9 @@ func (service *PorkbunService) UpdateIPv6(Target string) {
 			} else {
 				if currentIpAddress != Target {
 					err := service.updateRecord(host, subdomain, "AAAA", Target)
-					service.LogDynDnsUpdate(domain.Domain, Target, err)
+					service.LogDynDnsUpdate(domain.Name, Target, err)
 				} else {
-					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Domain)
+					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
 				}
 			}
 		}

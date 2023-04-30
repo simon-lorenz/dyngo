@@ -25,12 +25,12 @@ func (service *DesecService) UpdateIPv4(Target string) {
 		domain := &service.Domains[i]
 
 		if domain.V4 {
-			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Domain, Target)
+			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Name, Target)
 
 			if err == nil {
-				service.LogDynDnsUpdate(domain.Domain, Target, nil)
+				service.LogDynDnsUpdate(domain.Name, Target, nil)
 			} else {
-				service.LogDynDnsUpdate(domain.Domain, Target, err)
+				service.LogDynDnsUpdate(domain.Name, Target, err)
 			}
 		}
 	}
@@ -45,12 +45,12 @@ func (service *DesecService) UpdateIPv6(Target string) {
 		domain := &service.Domains[i]
 
 		if domain.V6 {
-			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Domain, Target)
+			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Name, Target)
 
 			if err == nil {
-				service.LogDynDnsUpdate(domain.Domain, Target, nil)
+				service.LogDynDnsUpdate(domain.Name, Target, nil)
 			} else {
-				service.LogDynDnsUpdate(domain.Domain, Target, err)
+				service.LogDynDnsUpdate(domain.Name, Target, err)
 			}
 		}
 	}
