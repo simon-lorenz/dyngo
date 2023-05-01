@@ -2,6 +2,7 @@ package detection
 
 import (
 	"dyngo/config"
+	"dyngo/detection/strategies"
 	"dyngo/logger"
 	"dyngo/services"
 	"errors"
@@ -11,10 +12,12 @@ var DetectionLogger = logger.NewLoggerCollection("detection")
 var CurrentIPv4 = ""
 var CurrentIPv6 = ""
 
-func RunDetection() {
+func RunDetection(trigger string) {
 	var IPv4Changed bool = false
 	var IPv6Changed bool = false
 	var err error
+
+	DetectionLogger.Debug.Printf("Detection triggered (trigger=%s)", trigger)
 
 	if services.AtLeastOneDomainRequires("v4") {
 		IPv4Changed, err = DetectIPAddress("v4")
@@ -64,15 +67,15 @@ func DetectIPAddress(protocol string) (bool, error) {
 	}
 
 	if Strategy.Web != "" {
-		ExternalIPAddress = getIpAddressFromExternalService(Strategy.Web)
+		ExternalIPAddress = strategies.GetIpAddressFromExternalService(Strategy.Web)
 	} else if Strategy.Cmd != "" {
-		ExternalIPAddress = getIpAddressFromCmd(Strategy.Cmd)
+		ExternalIPAddress = strategies.GetIpAddressFromCmd(Strategy.Cmd)
 	} else {
 		return false, errors.New("Cannot determine IP" + protocol + " because no detection strategies are configured")
 	}
 
 	if CurrentIPAddress != ExternalIPAddress {
-		DetectionLogger.Info.Printf("Detected change in IP%s Address: '%s' -> '%s' ", protocol, CurrentIPAddress, ExternalIPAddress)
+		DetectionLogger.Info.Printf("IP%s Address changed: '%s' -> '%s' ", protocol, CurrentIPAddress, ExternalIPAddress)
 
 		if protocol == "v4" {
 			CurrentIPv4 = ExternalIPAddress

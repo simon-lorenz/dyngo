@@ -2,7 +2,7 @@ package main
 
 import (
 	"dyngo/config"
-	"dyngo/detection"
+	"dyngo/detection/triggers"
 	"dyngo/logger"
 	"dyngo/services"
 	"flag"
@@ -39,7 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	detection.SetupTriggers()
+	triggers.SetupTriggers()
 }
 
 func setupAndParseFlags() Flags {
