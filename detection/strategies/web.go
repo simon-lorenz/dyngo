@@ -1,26 +1,35 @@
 package strategies
 
 import (
-	"dyngo/logger"
 	"io"
 	"net/http"
 	"strconv"
 )
 
-var webDetectionLogger = logger.NewLoggerCollection("detection/strategies/web")
+type WebStrategy struct {
+	BaseDetectionStrategy
+	URL string
+}
 
-func GetIpAddressFromExternalService(url string) string {
-	webDetectionLogger.Debug.Printf("URL: %s", url)
+func NewWebDetectionStrategy(URL string) DetectionStrategy {
+	return &WebStrategy{
+		BaseDetectionStrategy: NewBaseDetectionStrategy("web"),
+		URL:                   URL,
+	}
+}
 
-	var resp, err = http.Get(url)
+func (strategy *WebStrategy) Execute() string {
+	strategy.Logger.Debug.Printf("URL: %s", strategy.URL)
+
+	var resp, err = http.Get(strategy.URL)
 
 	if err != nil {
-		webDetectionLogger.Error.Println(err)
+		strategy.Logger.Error.Println(err)
 		return ""
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 300 {
-		webDetectionLogger.Error.Println("Could not detect ip address: http status " + strconv.FormatInt(int64(resp.StatusCode), 10))
+		strategy.Logger.Error.Println("Could not detect ip address: http status " + strconv.FormatInt(int64(resp.StatusCode), 10))
 		return ""
 	}
 
@@ -29,13 +38,13 @@ func GetIpAddressFromExternalService(url string) string {
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		webDetectionLogger.Error.Printf("Could not detect ip address: %s", err)
+		strategy.Logger.Error.Printf("Could not detect ip address: %s", err)
 		return ""
 	}
 
 	ip := string(body)
 
-	webDetectionLogger.Debug.Printf("Detection successful: %s", ip)
+	strategy.Logger.Debug.Printf("Detection successful: %s", ip)
 
 	return ip
 }

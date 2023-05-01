@@ -1,29 +1,38 @@
 package strategies
 
 import (
-	"dyngo/logger"
 	"os/exec"
 	"strings"
 )
 
-var cmdDetectionLogger = logger.NewLoggerCollection("detection/strategies/cmd")
+type CmdDetectionStrategy struct {
+	BaseDetectionStrategy
+	Command string
+}
 
-func GetIpAddressFromCmd(s string) string {
-	cmdDetectionLogger.Debug.Printf("Executing command: " + s)
+func NewCmdDetectionStrategy(Command string) DetectionStrategy {
+	return &CmdDetectionStrategy{
+		BaseDetectionStrategy: NewBaseDetectionStrategy("cmd"),
+		Command:               Command,
+	}
+}
 
-	cmd := exec.Command("/bin/sh", "-c", s)
+func (strategy *CmdDetectionStrategy) Execute() string {
+	strategy.Logger.Debug.Printf("Executing command: " + strategy.Command)
+
+	cmd := exec.Command("/bin/sh", "-c", strategy.Command)
 
 	out, err := cmd.Output()
 
 	if err != nil {
-		cmdDetectionLogger.Error.Printf("Detection failed: %s", err)
+		strategy.Logger.Error.Printf("Detection failed: %s", err)
 
 		return ""
 	}
 
 	ip := strings.TrimSpace(string(out))
 
-	cmdDetectionLogger.Debug.Printf("Detection successful: %s", ip)
+	strategy.Logger.Debug.Printf("Detection successful: %s", ip)
 
 	return ip
 }

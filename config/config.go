@@ -38,12 +38,12 @@ type DetectionConfiguration struct {
 		Startup bool   `yaml:"startup"`
 	} `yaml:"triggers" validate:"required"`
 	Strategies *struct {
-		V4 DetectionStrategy `yaml:"v4"`
-		V6 DetectionStrategy `yaml:"v6"`
+		V4 DetectionStrategies `yaml:"v4"`
+		V6 DetectionStrategies `yaml:"v6"`
 	} `yaml:"strategies" validate:"required"`
 }
 
-type DetectionStrategy struct {
+type DetectionStrategies struct {
 	Web string `yaml:"web" validate:"omitempty,url"`
 	Cmd string `yaml:"cmd"`
 }
