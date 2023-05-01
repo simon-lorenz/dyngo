@@ -44,7 +44,7 @@ func main() {
 	if config.Detection.Triggers.Cron != "" {
 		logger.Info.Printf("Initiating cron job with pattern %v\n", config.Detection.Triggers.Cron)
 		c := cron.New(cron.WithSeconds())
-		c.AddFunc(config.Cron, runDynDNSUpdater)
+		c.AddFunc(config.Detection.Triggers.Cron, runDynDNSUpdater)
 		defer c.Run()
 	}
 

@@ -52,7 +52,6 @@ type LogConfiguration struct {
 	Level string `yaml:"level" validate:"oneof=trace debug info warning error fatal"`
 }
 
-var Cron string
 var Services ServicesConfiguration
 var Detection DetectionConfiguration
 var Log LogConfiguration
