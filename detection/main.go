@@ -42,9 +42,9 @@ func DetectIPAddress(protocol string) (bool, error) {
 		DetectionLogger.Info.Printf("Detected change in IP%s Address: '%s' -> '%s' ", protocol, CurrentIPAddress, ExternalIPAddress)
 
 		if protocol == "v4" {
-			CurrentIPv4 = CurrentIPAddress
+			CurrentIPv4 = ExternalIPAddress
 		} else {
-			CurrentIPv6 = CurrentIPAddress
+			CurrentIPv6 = ExternalIPAddress
 		}
 
 		return true, nil
