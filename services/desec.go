@@ -14,7 +14,8 @@ type DesecService struct {
 
 func NewDesec() DynDnsService {
 	return &DesecService{
-		BaseService: NewBaseService("deSEC.io", *config.Services.Desec)}
+		BaseService: NewBaseService("deSEC.io", *config.Services.Desec),
+	}
 }
 
 func (service *DesecService) Update(Address ip.IPAddress) {
