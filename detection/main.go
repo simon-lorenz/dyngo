@@ -54,15 +54,15 @@ func DetectIPAddress(protocol string) (bool, error) {
 		return false, errors.New("Can not detect ip address for unknown protocol " + protocol)
 	}
 
-	var CurrentIPAddress string = ""
+	var CurrentIPAddress *string
 	var ExternalIPAddress string = ""
 	var Strategy config.DetectionStrategy
 
 	if protocol == "v4" {
-		CurrentIPAddress = CurrentIPv4
+		CurrentIPAddress = &CurrentIPv4
 		Strategy = config.Detection.Strategies.V4
 	} else {
-		CurrentIPAddress = CurrentIPv6
+		CurrentIPAddress = &CurrentIPv6
 		Strategy = config.Detection.Strategies.V6
 	}
 
@@ -74,15 +74,9 @@ func DetectIPAddress(protocol string) (bool, error) {
 		return false, errors.New("Cannot determine IP" + protocol + " because no detection strategies are configured")
 	}
 
-	if CurrentIPAddress != ExternalIPAddress {
-		DetectionLogger.Info.Printf("IP%s Address changed: '%s' -> '%s' ", protocol, CurrentIPAddress, ExternalIPAddress)
-
-		if protocol == "v4" {
-			CurrentIPv4 = ExternalIPAddress
-		} else {
-			CurrentIPv6 = ExternalIPAddress
-		}
-
+	if *CurrentIPAddress != ExternalIPAddress {
+		DetectionLogger.Info.Printf("IP%s Address changed: '%s' -> '%s' ", protocol, *CurrentIPAddress, ExternalIPAddress)
+		*CurrentIPAddress = ExternalIPAddress
 		return true, nil
 	} else {
 		DetectionLogger.Debug.Printf("No IP%s change detected", protocol)
