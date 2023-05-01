@@ -2,14 +2,13 @@ package main
 
 import (
 	"dyngo/config"
+	"dyngo/detection"
 	"dyngo/logger"
 	"dyngo/services"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/robfig/cron/v3"
 )
 
 type Flags struct {
@@ -40,19 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Run cron
-	if config.Detection.Triggers.Cron != "" {
-		logger.Info.Printf("Initiating cron job with pattern %v\n", config.Detection.Triggers.Cron)
-		c := cron.New(cron.WithSeconds())
-		c.AddFunc(config.Detection.Triggers.Cron, runDynDNSUpdater)
-		defer c.Run()
-	}
-
-	// Run once immediatly
-	if config.Detection.Triggers.Startup {
-		runDynDNSUpdater()
-	}
-
+	detection.SetupTriggers()
 }
 
 func setupAndParseFlags() Flags {
