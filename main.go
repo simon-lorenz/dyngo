@@ -40,6 +40,8 @@ func main() {
 	}
 
 	triggers.SetupTriggers()
+
+	logger.Info.Println("No continuous triggers configured. Shutting down, goodbye!")
 }
 
 func setupAndParseFlags() Flags {
