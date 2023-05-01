@@ -1,7 +1,9 @@
 /*
-Reference:
-- https://porkbun.com/api/json/v3/documentation
-- https://github.com/ddclient/ddclient/blob/841ffcbdaa009687e5fb390c4527055e929f959a/ddclient.in#L7199
+	Implementation for porkbun.com
+
+	Reference:
+		- https://porkbun.com/api/json/v3/documentation
+		- https://github.com/ddclient/ddclient/blob/841ffcbdaa009687e5fb390c4527055e929f959a/ddclient.in#L7199
 */
 
 package services

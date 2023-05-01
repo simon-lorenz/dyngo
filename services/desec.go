@@ -1,3 +1,10 @@
+/*
+	Implementation for desec.io
+
+	Reference:
+		- https://desec.readthedocs.io/en/latest/
+*/
+
 package services
 
 import (
