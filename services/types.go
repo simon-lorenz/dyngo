@@ -7,7 +7,7 @@ import (
 )
 
 type DynDnsService interface {
-	Update(ip.IPAddress)
+	Update(ip.IPAddress) error
 
 	GetDomains() []config.DomainConfiguration
 	GetName() string

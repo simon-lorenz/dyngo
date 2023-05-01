@@ -25,7 +25,7 @@ func NewDesec() DynDnsService {
 	}
 }
 
-func (service *DesecService) Update(Address ip.IPAddress) {
+func (service *DesecService) Update(Address ip.IPAddress) error {
 	for _, domain := range service.Domains {
 		var err error
 
@@ -33,7 +33,13 @@ func (service *DesecService) Update(Address ip.IPAddress) {
 			err = service.sendUpdateRequest("https://update.dedyn.io", domain.Name, Address.Content)
 			service.LogDynDnsUpdate(domain.Name, Address.Content, err)
 		}
+
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func (service *DesecService) sendUpdateRequest(baseUrl, host, ipAddress string) error {

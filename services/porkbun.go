@@ -30,7 +30,7 @@ func NewPorkbun() DynDnsService {
 	}
 }
 
-func (service *PorkbunService) Update(Address ip.IPAddress) {
+func (service *PorkbunService) Update(Address ip.IPAddress) error {
 	for _, domain := range service.Domains {
 		var record string
 
@@ -46,12 +46,11 @@ func (service *PorkbunService) Update(Address ip.IPAddress) {
 		recordIPAddress, err := service.getExistingRecord(record, host, subdomain)
 
 		if err != nil {
-			service.LogDynDnsUpdate(domain.Name, Address.Content, err)
-			continue
+			return err
 		}
 
 		if recordIPAddress == "" {
-			service.createRecord(host, subdomain, record, Address.Content)
+			_, err = service.createRecord(host, subdomain, record, Address.Content)
 		} else {
 			if recordIPAddress != Address.Content {
 				err = service.updateRecord(host, subdomain, record, Address.Content)
@@ -61,7 +60,13 @@ func (service *PorkbunService) Update(Address ip.IPAddress) {
 		}
 
 		service.LogDynDnsUpdate(domain.Name, Address.Content, err)
+
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 func (service *PorkbunService) getExistingRecord(record, domain, subdomain string) (string, error) {
