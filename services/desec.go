@@ -2,6 +2,7 @@ package services
 
 import (
 	"dyngo/config"
+	"dyngo/helpers/ip"
 	"errors"
 	"net/http"
 	"strconv"
@@ -16,42 +17,13 @@ func NewDesec() DynDnsService {
 		BaseService: NewBaseService("deSEC.io", *config.Services.Desec)}
 }
 
-func (service *DesecService) UpdateIPv4(Target string) {
-	if Target == "" {
-		return
-	}
+func (service *DesecService) Update(Address ip.IPAddress) {
+	for _, domain := range service.Domains {
+		var err error
 
-	for i := range service.Domains {
-		domain := &service.Domains[i]
-
-		if domain.V4 {
-			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Name, Target)
-
-			if err == nil {
-				service.LogDynDnsUpdate(domain.Name, Target, nil)
-			} else {
-				service.LogDynDnsUpdate(domain.Name, Target, err)
-			}
-		}
-	}
-}
-
-func (service *DesecService) UpdateIPv6(Target string) {
-	if Target == "" {
-		return
-	}
-
-	for i := range service.Domains {
-		domain := &service.Domains[i]
-
-		if domain.V6 {
-			err := service.sendUpdateRequest("https://update.dedyn.io", domain.Name, Target)
-
-			if err == nil {
-				service.LogDynDnsUpdate(domain.Name, Target, nil)
-			} else {
-				service.LogDynDnsUpdate(domain.Name, Target, err)
-			}
+		if (domain.V4 && Address.Protocol == ip.IPv4) || (domain.V6 && Address.Protocol == ip.IPv6) {
+			err = service.sendUpdateRequest("https://update.dedyn.io", domain.Name, Address.Content)
+			service.LogDynDnsUpdate(domain.Name, Address.Content, err)
 		}
 	}
 }

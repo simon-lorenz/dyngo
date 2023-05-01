@@ -1,7 +1,7 @@
 package services
 
 import (
-	"dyngo/helpers/protocols"
+	"dyngo/helpers/ip"
 	"dyngo/logger"
 )
 
@@ -12,22 +12,16 @@ func Register(service DynDnsService) {
 	logger.Info.Printf("Registered service '%v'", service.GetName())
 }
 
-func UpdateServices(protocol protocols.InternetProtocol, IPAddress string) {
+func UpdateServices(IPAddress ip.IPAddress) {
 	for _, service := range Registered {
-		if protocol == protocols.IPv4 {
-			service.UpdateIPv4(IPAddress)
-		}
-
-		if protocol == protocols.IPv6 {
-			service.UpdateIPv6(IPAddress)
-		}
+		service.Update(IPAddress)
 	}
 }
 
-func AtLeastOneDomainRequires(protocol protocols.InternetProtocol) bool {
+func AtLeastOneDomainRequires(protocol ip.InternetProtocol) bool {
 	for _, service := range Registered {
 		for _, domain := range service.GetDomains() {
-			if (protocol == protocols.IPv4 && domain.V4) || (protocol == protocols.IPv6 && domain.V6) {
+			if (protocol == ip.IPv4 && domain.V4) || (protocol == ip.IPv6 && domain.V6) {
 				return true
 			}
 		}

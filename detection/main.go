@@ -3,7 +3,7 @@ package detection
 import (
 	"dyngo/config"
 	"dyngo/detection/strategies"
-	"dyngo/helpers/protocols"
+	"dyngo/helpers/ip"
 	"dyngo/logger"
 	"dyngo/services"
 	"errors"
@@ -20,16 +20,16 @@ func RunDetection(trigger string) {
 
 	DetectionLogger.Debug.Printf("Detection triggered (trigger=%s)", trigger)
 
-	if services.AtLeastOneDomainRequires(protocols.IPv4) {
-		IPv4Changed, err = DetectIPAddress(protocols.IPv4)
+	if services.AtLeastOneDomainRequires(ip.IPv4) {
+		IPv4Changed, err = DetectIPAddress(ip.IPv4)
 
 		if err != nil {
 			DetectionLogger.Error.Println(err.Error())
 		}
 	}
 
-	if services.AtLeastOneDomainRequires(protocols.IPv6) {
-		IPv6Changed, err = DetectIPAddress(protocols.IPv6)
+	if services.AtLeastOneDomainRequires(ip.IPv6) {
+		IPv6Changed, err = DetectIPAddress(ip.IPv6)
 
 		if err != nil {
 			DetectionLogger.Error.Println(err.Error())
@@ -37,22 +37,28 @@ func RunDetection(trigger string) {
 	}
 
 	if IPv4Changed {
-		services.UpdateServices(protocols.IPv4, CurrentIPv4)
+		services.UpdateServices(ip.IPAddress{
+			Content:  CurrentIPv4,
+			Protocol: ip.IPv4,
+		})
 	}
 
 	if IPv6Changed {
-		services.UpdateServices(protocols.IPv6, CurrentIPv6)
+		services.UpdateServices(ip.IPAddress{
+			Content:  CurrentIPv6,
+			Protocol: ip.IPv6,
+		})
 	}
 }
 
-func DetectIPAddress(protocol protocols.InternetProtocol) (bool, error) {
+func DetectIPAddress(protocol ip.InternetProtocol) (bool, error) {
 	DetectionLogger.Debug.Printf("Running %s detection", protocol.Version)
 
 	var CurrentIPAddress *string
 	var ExternalIPAddress string = ""
 	var Strategy config.DetectionStrategy
 
-	if protocol == protocols.IPv4 {
+	if protocol == ip.IPv4 {
 		CurrentIPAddress = &CurrentIPv4
 		Strategy = config.Detection.Strategies.V4
 	} else {

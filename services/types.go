@@ -2,12 +2,12 @@ package services
 
 import (
 	"dyngo/config"
+	"dyngo/helpers/ip"
 	"dyngo/logger"
 )
 
 type DynDnsService interface {
-	UpdateIPv4(string)
-	UpdateIPv6(string)
+	Update(ip.IPAddress)
 
 	GetDomains() []config.DomainConfiguration
 	GetName() string

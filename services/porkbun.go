@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"dyngo/config"
 	"dyngo/helpers"
+	"dyngo/helpers/ip"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -27,63 +28,37 @@ func NewPorkbun() DynDnsService {
 	}
 }
 
-func (service *PorkbunService) UpdateIPv4(Target string) {
-	if Target == "" {
-		return
-	}
-
+func (service *PorkbunService) Update(Address ip.IPAddress) {
 	for _, domain := range service.Domains {
-		subdomain, host := helpers.ExtractSubdomain((domain.Name))
+		var record string
 
 		if domain.V4 {
-			currentIpAddress, err := service.getExistingRecord("A", host, subdomain)
-
-			if err != nil {
-				service.Logger.Info.Println(err)
-				continue
-			}
-
-			if currentIpAddress == "" {
-				service.createRecord(host, subdomain, "A", Target)
-			} else {
-				if currentIpAddress != Target {
-					err := service.updateRecord(host, subdomain, "A", Target)
-					service.LogDynDnsUpdate(domain.Name, Target, err)
-				} else {
-					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
-				}
-			}
+			record = "A"
+		} else if domain.V6 {
+			record = "AAAA"
+		} else {
+			continue
 		}
-	}
-}
 
-func (service *PorkbunService) UpdateIPv6(Target string) {
-	if Target == "" {
-		return
-	}
-
-	for _, domain := range service.Domains {
 		subdomain, host := helpers.ExtractSubdomain((domain.Name))
+		recordIPAddress, err := service.getExistingRecord(record, host, subdomain)
 
-		if domain.V4 {
-			currentIpAddress, err := service.getExistingRecord("AAAA", host, subdomain)
+		if err != nil {
+			service.LogDynDnsUpdate(domain.Name, Address.Content, err)
+			continue
+		}
 
-			if err != nil {
-				service.Logger.Info.Println(err)
-				continue
-			}
-
-			if currentIpAddress == "" {
-				service.createRecord(host, subdomain, "AAAA", Target)
+		if recordIPAddress == "" {
+			service.createRecord(host, subdomain, record, Address.Content)
+		} else {
+			if recordIPAddress != Address.Content {
+				err = service.updateRecord(host, subdomain, record, Address.Content)
 			} else {
-				if currentIpAddress != Target {
-					err := service.updateRecord(host, subdomain, "AAAA", Target)
-					service.LogDynDnsUpdate(domain.Name, Target, err)
-				} else {
-					service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
-				}
+				service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
 			}
 		}
+
+		service.LogDynDnsUpdate(domain.Name, Address.Content, err)
 	}
 }
 
