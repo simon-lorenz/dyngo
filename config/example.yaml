@@ -6,12 +6,26 @@ log:
 # Available service providers. You only need to specify those that
 # you actually use.
 services:
+  # Here you can add generic services that follow dyndns protocols. This way
+  # DynGO might by able to work with services that aren't explicitly supported.
+  generic:
+    - name: "Some generic service"
+      url: "https://generic.service"
+      protocol: "dyndns2" #  Currently supported protocols: dyndns2
+      username: "mario"
+      password: "it's a me"
+      domains:
+        - name: "mario.generic.service"
+          v4: false
+          v6: false
+
+  # These are explicitly supported services
   desec:
     username: "me.dedyn.io"
     password: "SECRET_TOKEN"
     domains:
       - name: "test.me.dedyn.io"
-        v4: true  # Controls whether an A record should be created or updated
+        v4: false  # Controls whether an A record should be created or updated
         v6: false # Controls whether an AAAA record should be created or updated
       - name: "test2.me.dedyn.io"
         v4: false
@@ -21,8 +35,8 @@ services:
     password: "SECRET_KEY"
     domains:
       - name: "test.my.domain"
-        v4: true
-        v6: true
+        v4: false
+        v6: false
 
 detection:
   # When should DynGO check if your wan ip address has changed?
@@ -36,8 +50,8 @@ detection:
   # How should DynGO check if your wan ip address has changed?
   strategies:
     v4:
-      web: "https://checkipv4.dedyn.io" # Specify a url that returns your ip as a string.
-      cmd: null
+      # web: "https://checkipv4.dedyn.io" # Specify a url that returns your ip as a string.
+      cmd: "echo '8.8.8.8'"
     v6:
       web: null
       cmd: "echo '2a00:1450:4001:831::2003'" # Use a script that returns your ip as a string.

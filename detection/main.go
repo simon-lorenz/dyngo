@@ -26,6 +26,8 @@ func RunDetection(trigger string) {
 		if err != nil {
 			DetectionLogger.Error.Println(err.Error())
 		}
+	} else {
+		DetectionLogger.Debug.Println("Skipping IPv4 detection because no service needs it.")
 	}
 
 	if services.AtLeastOneDomainRequires(ip.IPv6) {
@@ -34,6 +36,8 @@ func RunDetection(trigger string) {
 		if err != nil {
 			DetectionLogger.Error.Println(err.Error())
 		}
+	} else {
+		DetectionLogger.Debug.Println("Skipping IPv6 detection because no service needs it.")
 	}
 
 	if IPv4Changed {

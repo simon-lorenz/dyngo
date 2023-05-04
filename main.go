@@ -26,6 +26,12 @@ func main() {
 	logger.SetLogLevel(config.Log.Level)
 	logger.Info.Println("Using configuration file " + *flags.config)
 
+	if len(config.Services.Generic) > 0 {
+		for _, service := range config.Services.Generic {
+			services.Register(services.NewGenericService(*service))
+		}
+	}
+
 	if config.Services.Desec != nil {
 		services.Register(services.NewDesec())
 	}

@@ -16,8 +16,17 @@ type DyngoConfiguration struct {
 }
 
 type ServicesConfiguration struct {
+	Generic []*GenericServiceConfiguration `yaml:"generic"`
+
 	Desec   *ServiceConfiguration `yaml:"desec"`
 	Porkbun *ServiceConfiguration `yaml:"porkbun"`
+}
+
+type GenericServiceConfiguration struct {
+	Name                 string           `yaml:"name" validate:"required"`
+	Protocol             string           `yaml:"protocol" validate:"required,oneof=dyndns2"`
+	URL                  string           `yaml:"url" validate:"required,url"`
+	ServiceConfiguration `yaml:",inline"` // https://github.com/go-yaml/yaml/issues/63
 }
 
 type ServiceConfiguration struct {
