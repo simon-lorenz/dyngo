@@ -59,26 +59,32 @@ func DetectIPAddress(protocol ip.InternetProtocol) (bool, error) {
 	DetectionLogger.Debug.Printf("Running %s detection", protocol.Version)
 
 	var CurrentIPAddress *string
-	var AvailableStrategies config.DetectionStrategies
-	var Strategy strategies.DetectionStrategy
 
 	if protocol == ip.IPv4 {
 		CurrentIPAddress = &CurrentIPv4
-		AvailableStrategies = config.Detection.Strategies.V4
 	} else {
 		CurrentIPAddress = &CurrentIPv6
-		AvailableStrategies = config.Detection.Strategies.V6
 	}
 
-	if AvailableStrategies.Web != "" {
-		Strategy = strategies.NewWebDetectionStrategy(AvailableStrategies.Web)
-	} else if AvailableStrategies.Cmd != "" {
-		Strategy = strategies.NewCmdDetectionStrategy(AvailableStrategies.Cmd)
-	} else {
+	AvailableStrategies := GetAvailableDetectionStrategies(protocol)
+
+	if len(AvailableStrategies) == 0 {
 		return false, errors.New("Cannot determine " + protocol.Version + " because no detection strategies are configured")
 	}
 
-	ExternalIPAddress := Strategy.Execute()
+	ExternalIPAddress := ""
+
+	for _, Strategy := range AvailableStrategies {
+		ExternalIPAddress = Strategy.Execute()
+
+		if ExternalIPAddress != "" {
+			break
+		}
+	}
+
+	if ExternalIPAddress == "" {
+		return false, errors.New("Could not determine " + protocol.Version + " because no detection strategy succeeded")
+	}
 
 	if *CurrentIPAddress != ExternalIPAddress {
 		DetectionLogger.Info.Printf("%s Address changed: '%s' -> '%s' ", protocol.Version, *CurrentIPAddress, ExternalIPAddress)
@@ -88,4 +94,26 @@ func DetectIPAddress(protocol ip.InternetProtocol) (bool, error) {
 		DetectionLogger.Debug.Printf("No %s change detected", protocol.Version)
 		return false, nil
 	}
+}
+
+func GetAvailableDetectionStrategies(protocol ip.InternetProtocol) []strategies.DetectionStrategy {
+	var StrategiesForProtocol config.DetectionStrategies
+
+	if protocol == ip.IPv4 {
+		StrategiesForProtocol = config.Detection.Strategies.V4
+	} else {
+		StrategiesForProtocol = config.Detection.Strategies.V6
+	}
+
+	AvailableStrategies := make([]strategies.DetectionStrategy, 0)
+
+	if StrategiesForProtocol.Web != "" {
+		AvailableStrategies = append(AvailableStrategies, strategies.NewWebDetectionStrategy(StrategiesForProtocol.Web))
+	}
+
+	if StrategiesForProtocol.Cmd != "" {
+		AvailableStrategies = append(AvailableStrategies, strategies.NewCmdDetectionStrategy(StrategiesForProtocol.Cmd))
+	}
+
+	return AvailableStrategies
 }
