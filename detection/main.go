@@ -41,14 +41,14 @@ func RunDetection(trigger string) {
 	}
 
 	if IPv4Changed {
-		services.UpdateServices(ip.IPAddress{
+		services.SetTarget(ip.IPAddress{
 			Content:  CurrentIPv4,
 			Protocol: ip.IPv4,
 		})
 	}
 
 	if IPv6Changed {
-		services.UpdateServices(ip.IPAddress{
+		services.SetTarget(ip.IPAddress{
 			Content:  CurrentIPv6,
 			Protocol: ip.IPv6,
 		})

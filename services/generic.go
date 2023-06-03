@@ -6,8 +6,6 @@ package services
 
 import (
 	"dyngo/config"
-	"dyngo/helpers/ip"
-	"dyngo/logger"
 	"errors"
 	"io"
 	"net/http"
@@ -20,37 +18,35 @@ type GenericService struct {
 	BaseService
 }
 
-func NewGenericService(config config.GenericServiceConfiguration) DynDnsService {
+func NewGenericService(config config.GenericServiceConfiguration) IService {
 	return &GenericService{
-		Protocol: config.Protocol,
-		URL:      config.URL,
-		BaseService: BaseService{
-			Username: config.Username,
-			Password: config.Password,
-			Domains:  config.Domains,
-			Name:     config.Name,
-			Logger:   logger.NewLoggerCollection("service/generic/" + strings.ToLower(config.Name)),
-		},
+		Protocol:    config.Protocol,
+		URL:         config.URL,
+		BaseService: NewBaseServiceFromGeneric("generic/"+strings.ToLower(config.Name), config),
 	}
 }
 
-func (service *GenericService) Update(Address ip.IPAddress) error {
-	for _, domain := range service.Domains {
+func (service *GenericService) Update() error {
+	for _, domain := range service.GetDomains() {
+		if domain.State.Current == domain.State.Target {
+			continue
+		}
+
 		var err error
 
-		if (domain.V4 && Address.Protocol == ip.IPv4) || (domain.V6 && Address.Protocol == ip.IPv6) {
-			if service.Protocol == "dyndns2" {
-				err = service.useDynDns2Protocol(domain.Name, Address.Content)
-			} else {
-				err = errors.New("Unknown protocol " + service.Protocol)
-			}
-
-			service.LogDynDnsUpdate(domain.Name, Address.Content, err)
+		if service.Protocol == "dyndns2" {
+			err = service.useDynDns2Protocol(domain.Name, domain.State.Target)
+		} else {
+			err = errors.New("Unknown protocol " + service.Protocol)
 		}
+
+		service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
 
 		if err != nil {
 			return err
 		}
+
+		domain.State.Current = domain.State.Target
 	}
 
 	return nil

@@ -9,7 +9,6 @@ package services
 
 import (
 	"dyngo/config"
-	"dyngo/helpers/ip"
 	"errors"
 	"net/http"
 	"strconv"
@@ -19,24 +18,26 @@ type DesecService struct {
 	BaseService
 }
 
-func NewDesec() DynDnsService {
+func NewDesec() IService {
 	return &DesecService{
 		BaseService: NewBaseService("deSEC.io", *config.Services.Desec),
 	}
 }
 
-func (service *DesecService) Update(Address ip.IPAddress) error {
-	for _, domain := range service.Domains {
-		var err error
-
-		if (domain.V4 && Address.Protocol == ip.IPv4) || (domain.V6 && Address.Protocol == ip.IPv6) {
-			err = service.sendUpdateRequest("https://update.dedyn.io", domain.Name, Address.Content)
-			service.LogDynDnsUpdate(domain.Name, Address.Content, err)
+func (service *DesecService) Update() error {
+	for _, domain := range service.GetDomains() {
+		if domain.State.Current == domain.State.Target {
+			continue
 		}
+
+		err := service.sendUpdateRequest("https://update.dedyn.io", domain.Name, domain.State.Target)
+		service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
 
 		if err != nil {
 			return err
 		}
+
+		domain.State.Current = domain.State.Target
 	}
 
 	return nil

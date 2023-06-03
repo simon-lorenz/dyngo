@@ -24,19 +24,19 @@ type PorkbunService struct {
 	BaseService
 }
 
-func NewPorkbun() DynDnsService {
+func NewPorkbun() IService {
 	return &PorkbunService{
 		BaseService: NewBaseService("porkbun", *config.Services.Porkbun),
 	}
 }
 
-func (service *PorkbunService) Update(Address ip.IPAddress) error {
-	for _, domain := range service.Domains {
+func (service *PorkbunService) Update() error {
+	for _, domain := range service.GetDomains() {
 		var record string
 
-		if domain.V4 {
+		if domain.Protocol == ip.IPv4 {
 			record = "A"
-		} else if domain.V6 {
+		} else if domain.Protocol == ip.IPv6 {
 			record = "AAAA"
 		} else {
 			continue
@@ -50,20 +50,22 @@ func (service *PorkbunService) Update(Address ip.IPAddress) error {
 		}
 
 		if recordIPAddress == "" {
-			_, err = service.createRecord(host, subdomain, record, Address.Content)
+			_, err = service.createRecord(host, subdomain, record, domain.State.Target)
 		} else {
-			if recordIPAddress != Address.Content {
-				err = service.updateRecord(host, subdomain, record, Address.Content)
+			if recordIPAddress != domain.State.Target {
+				err = service.updateRecord(host, subdomain, record, domain.State.Target)
 			} else {
 				service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
 			}
 		}
 
-		service.LogDynDnsUpdate(domain.Name, Address.Content, err)
+		service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
 
 		if err != nil {
 			return err
 		}
+
+		domain.State.Current = domain.State.Target
 	}
 
 	return nil
