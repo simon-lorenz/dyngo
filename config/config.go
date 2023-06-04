@@ -1,6 +1,7 @@
 package config
 
 import (
+	"dyngo/helpers/dns"
 	"dyngo/logger"
 	"io/ioutil"
 	"os"
@@ -36,9 +37,8 @@ type ServiceConfiguration struct {
 }
 
 type DomainConfiguration struct {
-	Name string `yaml:"name" validate:"required,hostname"`
-	V4   bool   `yaml:"v4"`
-	V6   bool   `yaml:"v6"`
+	Name    string       `yaml:"name" validate:"required,hostname"`
+	Records []dns.Record `yaml:"records" validate:"required,dive,oneof=A AAAA"`
 }
 
 type DetectionConfiguration struct {

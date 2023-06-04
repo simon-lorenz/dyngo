@@ -55,33 +55,6 @@ type BaseService struct {
 	retryAfter time.Time // Timestamp after which the service can be retried
 }
 
-func NewDomain(name string, v4, v6 bool) Domain {
-	domain := Domain{
-		Name:  name,
-		State: make(map[dns.Record]DomainState),
-	}
-
-	if v4 {
-		domain.Records = append(domain.Records, dns.A)
-
-		domain.State[dns.A] = DomainState{
-			Current: "",
-			Target:  "",
-		}
-	}
-
-	if v6 {
-		domain.Records = append(domain.Records, dns.AAAA)
-
-		domain.State[dns.AAAA] = DomainState{
-			Current: "",
-			Target:  "",
-		}
-	}
-
-	return domain
-}
-
 func (domain *Domain) UpdateTarget(address ip.IPAddress) {
 	var record dns.Record
 
@@ -140,29 +113,23 @@ func NewBaseServiceFromGeneric(name string, config config.GenericServiceConfigur
 }
 
 func getDomainsFromConfig(domains []config.DomainConfiguration) []*Domain {
-	var result []*Domain
+	return helpers.Map(domains, func(config config.DomainConfiguration) *Domain {
+		domain := Domain{
+			Name:  config.Name,
+			State: make(map[dns.Record]DomainState),
+		}
 
-	for _, config := range domains {
-		domain := NewDomain(config.Name, config.V4, config.V6)
+		for _, record := range config.Records {
+			domain.Records = append(domain.Records, record)
 
-		if config.V4 {
-			domain.State[dns.A] = DomainState{
+			domain.State[record] = DomainState{
 				Current: "",
 				Target:  "",
 			}
 		}
 
-		if config.V6 {
-			domain.State[dns.AAAA] = DomainState{
-				Current: "",
-				Target:  "",
-			}
-		}
-
-		result = append(result, &domain)
-	}
-
-	return result
+		return &domain
+	})
 }
 
 func (service *BaseService) GetDomains() []*Domain {

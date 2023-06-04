@@ -16,8 +16,7 @@ services:
       password: "it's a me"
       domains:
         - name: "mario.generic.service"
-          v4: false
-          v6: false
+          records: []
 
   # These are explicitly supported services
   desec:
@@ -25,18 +24,15 @@ services:
     password: "SECRET_TOKEN"
     domains:
       - name: "test.me.dedyn.io"
-        v4: false  # Controls whether an A record should be created or updated
-        v6: false # Controls whether an AAAA record should be created or updated
+        records: [A]
       - name: "test2.me.dedyn.io"
-        v4: false
-        v6: false
+        records: [A, AAAA]
   porkbun:
     username: "API_KEY"
     password: "SECRET_KEY"
     domains:
       - name: "test.my.domain"
-        v4: false
-        v6: false
+        records: []
 
 detection:
   # When should DynGO check if your wan ip address has changed?
