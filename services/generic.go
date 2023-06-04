@@ -6,6 +6,7 @@ package services
 
 import (
 	"dyngo/config"
+	"dyngo/helpers/dns"
 	"errors"
 	"io"
 	"net/http"
@@ -27,15 +28,29 @@ func NewGenericService(config config.GenericServiceConfiguration) IService {
 }
 
 func (service *GenericService) Update(domain *Domain) error {
-	if service.Protocol == "dyndns2" {
-		return service.useDynDns2Protocol(domain.Name, domain.State.Target)
-	} else {
-		return errors.New("Unknown protocol " + service.Protocol)
+	for _, record := range domain.Records {
+		var err error
+
+		if service.Protocol == "dyndns2" {
+			err = service.useDynDns2Protocol(domain, record)
+		} else {
+			err = errors.New("Unknown protocol " + service.Protocol)
+		}
+
+		service.LogDynDnsUpdate(domain.Name, domain.State[record].Target, err)
+
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-func (service *GenericService) useDynDns2Protocol(host, ipAddress string) error {
-	var url = service.URL + "/nic/update?hostname=" + host + "&myip=" + ipAddress
+func (service *GenericService) useDynDns2Protocol(domain *Domain, record dns.Record) error {
+	state := domain.State[record]
+
+	var url = service.URL + "/nic/update?hostname=" + domain.Name + "&myip=" + state.Target
 
 	service.Logger.Debug.Printf("Sending request: %v\n", url)
 
@@ -50,7 +65,14 @@ func (service *GenericService) useDynDns2Protocol(host, ipAddress string) error 
 		return err
 	}
 
-	return service.parseResponse(resp)
+	err = service.parseResponse(resp)
+
+	if err != nil {
+		return err
+	} else {
+		domain.HandleSuccessfulUpdate(record)
+		return nil
+	}
 }
 
 func (service *GenericService) parseResponse(resp *http.Response) error {

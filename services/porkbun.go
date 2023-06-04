@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"dyngo/config"
 	"dyngo/helpers"
-	"dyngo/helpers/ip"
+	"dyngo/helpers/dns"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -31,38 +31,40 @@ func NewPorkbun() IService {
 }
 
 func (service *PorkbunService) Update(domain *Domain) error {
-	var record string
+	for _, record := range domain.Records {
+		targetIpAddress := domain.State[record].Target
+		subdomain, host := helpers.ExtractSubdomain((domain.Name))
+		recordIPAddress, err := service.getExistingRecord(record, host, subdomain)
 
-	if domain.Protocol == ip.IPv4 {
-		record = "A"
-	} else if domain.Protocol == ip.IPv6 {
-		record = "AAAA"
-	} else {
-		return errors.New("Cannot determine dns record for protocol '" + domain.Protocol.Version + "'")
-	}
+		if err != nil {
+			service.LogDynDnsUpdate(domain.Name, targetIpAddress, err)
+			continue
+		}
 
-	subdomain, host := helpers.ExtractSubdomain((domain.Name))
-	recordIPAddress, err := service.getExistingRecord(record, host, subdomain)
-
-	if err != nil {
-		return err
-	}
-
-	if recordIPAddress == "" {
-		_, err = service.createRecord(host, subdomain, record, domain.State.Target)
-	} else {
-		if recordIPAddress != domain.State.Target {
-			err = service.updateRecord(host, subdomain, record, domain.State.Target)
+		if recordIPAddress == "" {
+			_, err = service.createRecord(host, subdomain, record, targetIpAddress)
 		} else {
-			service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
+			if recordIPAddress != targetIpAddress {
+				err = service.updateRecord(host, subdomain, record, targetIpAddress)
+			} else {
+				service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
+			}
+		}
+
+		service.LogDynDnsUpdate(domain.Name, targetIpAddress, err)
+
+		if err != nil {
+			return err
+		} else {
+			domain.HandleSuccessfulUpdate(record)
 		}
 	}
 
-	return err
+	return nil
 }
 
-func (service *PorkbunService) getExistingRecord(record, domain, subdomain string) (string, error) {
-	var ENDPOINT string = "https://porkbun.com/api/json/v3/dns/retrieveByNameType/" + domain + "/" + record + "/" + subdomain
+func (service *PorkbunService) getExistingRecord(record dns.Record, domain, subdomain string) (string, error) {
+	var ENDPOINT string = "https://porkbun.com/api/json/v3/dns/retrieveByNameType/" + domain + "/" + string(record) + "/" + subdomain
 
 	type Response struct {
 		Status     string `json:"status"`
@@ -115,7 +117,7 @@ func (service *PorkbunService) getExistingRecord(record, domain, subdomain strin
 	return "", nil
 }
 
-func (service *PorkbunService) createRecord(domain, subdomain, record, ip string) (string, error) {
+func (service *PorkbunService) createRecord(domain, subdomain string, record dns.Record, ip string) (string, error) {
 	service.Logger.Info.Printf("Creating new record for %s", helpers.JoinDomainParts(subdomain, domain))
 
 	var ENDPOINT string = "https://porkbun.com/api/json/v3/dns/create/" + domain
@@ -129,7 +131,7 @@ func (service *PorkbunService) createRecord(domain, subdomain, record, ip string
 		"apikey":       service.Username,
 		"secretapikey": service.Password,
 		"name":         subdomain,
-		"type":         record,
+		"type":         string(record),
 		"content":      ip,
 	})
 
@@ -157,10 +159,10 @@ func (service *PorkbunService) createRecord(domain, subdomain, record, ip string
 	return response.Id, nil
 }
 
-func (service *PorkbunService) updateRecord(domain, subdomain, record, ip string) error {
-	service.Logger.Info.Printf("Updating %s record for %s", record, helpers.JoinDomainParts(subdomain, domain))
+func (service *PorkbunService) updateRecord(domain, subdomain string, record dns.Record, ip string) error {
+	service.Logger.Info.Printf("Updating %s record for %s", string(record), helpers.JoinDomainParts(subdomain, domain))
 
-	var ENDPOINT string = "https://porkbun.com/api/json/v3/dns/editByNameType/" + domain + "/" + record + "/" + subdomain
+	var ENDPOINT string = "https://porkbun.com/api/json/v3/dns/editByNameType/" + domain + "/" + string(record) + "/" + subdomain
 
 	body, _ := json.Marshal(map[string]interface{}{
 		"apikey":       service.Username,

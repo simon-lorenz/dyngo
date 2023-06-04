@@ -2,6 +2,7 @@ package services
 
 import (
 	"dyngo/helpers"
+	"dyngo/helpers/dns"
 	"dyngo/helpers/ip"
 	"dyngo/logger"
 	"strconv"
@@ -20,9 +21,7 @@ func Register(service IService) {
 func SetTarget(IPAddress ip.IPAddress) {
 	for _, service := range Registered {
 		for _, domain := range service.GetDomains() {
-			if domain.Protocol == IPAddress.Protocol {
-				domain.State.Target = IPAddress.Content
-			}
+			domain.UpdateTarget(IPAddress)
 		}
 	}
 }
@@ -30,7 +29,7 @@ func SetTarget(IPAddress ip.IPAddress) {
 func GetServicesThatNeedUpdate() []IService {
 	return helpers.Filter(Registered, func(service IService) bool {
 		return helpers.Find(service.GetDomains(), func(domain *Domain) bool {
-			return domain.State.Current != domain.State.Target
+			return domain.NeedsUpdate()
 		}) != nil
 	})
 }
@@ -38,7 +37,7 @@ func GetServicesThatNeedUpdate() []IService {
 func AtLeastOneDomainRequires(protocol ip.InternetProtocol) bool {
 	return helpers.Find(Registered, func(service IService) bool {
 		return helpers.Find(service.GetDomains(), func(domain *Domain) bool {
-			return domain.Protocol == protocol
+			return domain.Wants(dns.GetRecordForInternetProtocol(protocol))
 		}) != nil
 	}) != nil
 }
@@ -53,15 +52,13 @@ func init() {
 				}
 
 				for _, domain := range service.GetDomains() {
-					if domain.State.Current == domain.State.Target {
+					if !domain.NeedsUpdate() {
 						continue
 					}
 
 					err := service.Update(domain)
-					service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
 
 					if err == nil {
-						domain.State.Current = domain.State.Target
 						service.ResetRetries()
 					} else {
 						lockedFor := service.IncreaseRetries()
@@ -69,7 +66,6 @@ func init() {
 						break
 					}
 				}
-
 			}
 		}
 	}()

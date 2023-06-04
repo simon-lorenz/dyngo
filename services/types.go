@@ -2,6 +2,8 @@ package services
 
 import (
 	"dyngo/config"
+	"dyngo/helpers"
+	"dyngo/helpers/dns"
 	"dyngo/helpers/ip"
 	"dyngo/logger"
 	"time"
@@ -31,9 +33,9 @@ type IService interface {
 }
 
 type Domain struct {
-	Name     string
-	Protocol ip.InternetProtocol
-	State    DomainState
+	Name    string
+	State   map[dns.Record]DomainState
+	Records []dns.Record
 }
 
 type DomainState struct {
@@ -51,6 +53,70 @@ type BaseService struct {
 
 	retries    int
 	retryAfter time.Time // Timestamp after which the service can be retried
+}
+
+func NewDomain(name string, v4, v6 bool) Domain {
+	domain := Domain{
+		Name:  name,
+		State: make(map[dns.Record]DomainState),
+	}
+
+	if v4 {
+		domain.Records = append(domain.Records, dns.A)
+
+		domain.State[dns.A] = DomainState{
+			Current: "",
+			Target:  "",
+		}
+	}
+
+	if v6 {
+		domain.Records = append(domain.Records, dns.AAAA)
+
+		domain.State[dns.AAAA] = DomainState{
+			Current: "",
+			Target:  "",
+		}
+	}
+
+	return domain
+}
+
+func (domain *Domain) UpdateTarget(address ip.IPAddress) {
+	var record dns.Record
+
+	if address.Protocol == ip.IPv4 {
+		record = dns.A
+	} else if address.Protocol == ip.IPv6 {
+		record = dns.AAAA
+	} else {
+		panic("Cannot update target for record '" + string(record) + "'")
+	}
+
+	if state, ok := domain.State[record]; ok {
+		state.Target = address.Content
+		domain.State[record] = state
+	}
+}
+
+func (domain *Domain) NeedsUpdate() bool {
+	for _, record := range domain.Records {
+		if domain.State[record].Current != domain.State[record].Target {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (domain *Domain) Wants(record dns.Record) bool {
+	return helpers.Contains(domain.Records, record)
+}
+
+func (domain *Domain) HandleSuccessfulUpdate(record dns.Record) {
+	state := domain.State[record]
+	state.Current = state.Target
+	domain.State[record] = state
 }
 
 func NewBaseService(name string, config config.ServiceConfiguration) BaseService {
@@ -76,28 +142,24 @@ func NewBaseServiceFromGeneric(name string, config config.GenericServiceConfigur
 func getDomainsFromConfig(domains []config.DomainConfiguration) []*Domain {
 	var result []*Domain
 
-	for _, domain := range domains {
-		if domain.V4 {
-			result = append(result, &Domain{
-				Name:     domain.Name,
-				Protocol: ip.IPv4,
-				State: DomainState{
-					Current: "",
-					Target:  "",
-				},
-			})
+	for _, config := range domains {
+		domain := NewDomain(config.Name, config.V4, config.V6)
+
+		if config.V4 {
+			domain.State[dns.A] = DomainState{
+				Current: "",
+				Target:  "",
+			}
 		}
 
-		if domain.V6 {
-			result = append(result, &Domain{
-				Name:     domain.Name,
-				Protocol: ip.IPv6,
-				State: DomainState{
-					Current: "",
-					Target:  "",
-				},
-			})
+		if config.V6 {
+			domain.State[dns.AAAA] = DomainState{
+				Current: "",
+				Target:  "",
+			}
 		}
+
+		result = append(result, &domain)
 	}
 
 	return result
