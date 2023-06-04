@@ -52,14 +52,24 @@ func init() {
 					continue
 				}
 
-				err := service.Update()
+				for _, domain := range service.GetDomains() {
+					if domain.State.Current == domain.State.Target {
+						continue
+					}
 
-				if err == nil {
-					service.ResetRetries()
-				} else {
-					lockedFor := service.IncreaseRetries()
-					ServiceLogger.Warn.Printf("Error while updating service %q. Will retry in %ss.", service.GetName(), strconv.Itoa(lockedFor))
+					err := service.Update(domain)
+					service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
+
+					if err == nil {
+						domain.State.Current = domain.State.Target
+						service.ResetRetries()
+					} else {
+						lockedFor := service.IncreaseRetries()
+						ServiceLogger.Warn.Printf("Error while updating service %q. Will retry in %ss.", service.GetName(), strconv.Itoa(lockedFor))
+						break
+					}
 				}
+
 			}
 		}
 	}()

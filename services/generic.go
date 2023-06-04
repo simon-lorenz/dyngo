@@ -26,30 +26,12 @@ func NewGenericService(config config.GenericServiceConfiguration) IService {
 	}
 }
 
-func (service *GenericService) Update() error {
-	for _, domain := range service.GetDomains() {
-		if domain.State.Current == domain.State.Target {
-			continue
-		}
-
-		var err error
-
-		if service.Protocol == "dyndns2" {
-			err = service.useDynDns2Protocol(domain.Name, domain.State.Target)
-		} else {
-			err = errors.New("Unknown protocol " + service.Protocol)
-		}
-
-		service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
-
-		if err != nil {
-			return err
-		}
-
-		domain.State.Current = domain.State.Target
+func (service *GenericService) Update(domain *Domain) error {
+	if service.Protocol == "dyndns2" {
+		return service.useDynDns2Protocol(domain.Name, domain.State.Target)
+	} else {
+		return errors.New("Unknown protocol " + service.Protocol)
 	}
-
-	return nil
 }
 
 func (service *GenericService) useDynDns2Protocol(host, ipAddress string) error {

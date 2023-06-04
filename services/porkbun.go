@@ -30,45 +30,35 @@ func NewPorkbun() IService {
 	}
 }
 
-func (service *PorkbunService) Update() error {
-	for _, domain := range service.GetDomains() {
-		var record string
+func (service *PorkbunService) Update(domain *Domain) error {
+	var record string
 
-		if domain.Protocol == ip.IPv4 {
-			record = "A"
-		} else if domain.Protocol == ip.IPv6 {
-			record = "AAAA"
-		} else {
-			continue
-		}
-
-		subdomain, host := helpers.ExtractSubdomain((domain.Name))
-		recordIPAddress, err := service.getExistingRecord(record, host, subdomain)
-
-		if err != nil {
-			return err
-		}
-
-		if recordIPAddress == "" {
-			_, err = service.createRecord(host, subdomain, record, domain.State.Target)
-		} else {
-			if recordIPAddress != domain.State.Target {
-				err = service.updateRecord(host, subdomain, record, domain.State.Target)
-			} else {
-				service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
-			}
-		}
-
-		service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
-
-		if err != nil {
-			return err
-		}
-
-		domain.State.Current = domain.State.Target
+	if domain.Protocol == ip.IPv4 {
+		record = "A"
+	} else if domain.Protocol == ip.IPv6 {
+		record = "AAAA"
+	} else {
+		return errors.New("Cannot determine dns record for protocol '" + domain.Protocol.Version + "'")
 	}
 
-	return nil
+	subdomain, host := helpers.ExtractSubdomain((domain.Name))
+	recordIPAddress, err := service.getExistingRecord(record, host, subdomain)
+
+	if err != nil {
+		return err
+	}
+
+	if recordIPAddress == "" {
+		_, err = service.createRecord(host, subdomain, record, domain.State.Target)
+	} else {
+		if recordIPAddress != domain.State.Target {
+			err = service.updateRecord(host, subdomain, record, domain.State.Target)
+		} else {
+			service.Logger.Info.Printf("Current ip address for %s does not differ from target ip address, skipping", domain.Name)
+		}
+	}
+
+	return err
 }
 
 func (service *PorkbunService) getExistingRecord(record, domain, subdomain string) (string, error) {

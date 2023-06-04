@@ -24,27 +24,8 @@ func NewDesec() IService {
 	}
 }
 
-func (service *DesecService) Update() error {
-	for _, domain := range service.GetDomains() {
-		if domain.State.Current == domain.State.Target {
-			continue
-		}
-
-		err := service.sendUpdateRequest("https://update.dedyn.io", domain.Name, domain.State.Target)
-		service.LogDynDnsUpdate(domain.Name, domain.State.Target, err)
-
-		if err != nil {
-			return err
-		}
-
-		domain.State.Current = domain.State.Target
-	}
-
-	return nil
-}
-
-func (service *DesecService) sendUpdateRequest(baseUrl, host, ipAddress string) error {
-	var url = baseUrl + "?hostname=" + host + "&myip=" + ipAddress
+func (service *DesecService) Update(domain *Domain) error {
+	url := "https://update.dedyn.io?hostname=" + domain.Name + "&myip=" + domain.State.Target
 
 	service.Logger.Debug.Printf("Sending request: %v\n", url)
 

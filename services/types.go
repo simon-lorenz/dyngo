@@ -9,7 +9,7 @@ import (
 )
 
 type IService interface {
-	Update() error
+	Update(*Domain) error
 
 	GetName() string
 	GetDomains() []*Domain
@@ -27,6 +27,8 @@ type IService interface {
 	// of seconds the service will be locked for. Call this function whenever
 	// the services update fails.
 	IncreaseRetries() int
+
+	LogDynDnsUpdate(string, string, error)
 }
 
 type Domain struct {
