@@ -1,6 +1,7 @@
 package services
 
 import (
+	"dyngo/helpers"
 	"dyngo/helpers/ip"
 	"dyngo/logger"
 	"strconv"
@@ -27,30 +28,19 @@ func SetTarget(IPAddress ip.IPAddress) {
 }
 
 func GetServicesThatNeedUpdate() []IService {
-	var NeedUpdate []IService
-
-	for _, service := range Registered {
-		for _, domain := range service.GetDomains() {
-			if domain.State.Current != domain.State.Target {
-				NeedUpdate = append(NeedUpdate, service)
-				break
-			}
-		}
-	}
-
-	return NeedUpdate
+	return helpers.Filter(Registered, func(service IService) bool {
+		return helpers.Find(service.GetDomains(), func(domain *Domain) bool {
+			return domain.State.Current != domain.State.Target
+		}) != nil
+	})
 }
 
 func AtLeastOneDomainRequires(protocol ip.InternetProtocol) bool {
-	for _, service := range Registered {
-		for _, domain := range service.GetDomains() {
-			if domain.Protocol == protocol {
-				return true
-			}
-		}
-	}
-
-	return false
+	return helpers.Find(Registered, func(service IService) bool {
+		return helpers.Find(service.GetDomains(), func(domain *Domain) bool {
+			return domain.Protocol == protocol
+		}) != nil
+	}) != nil
 }
 
 func init() {

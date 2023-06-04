@@ -2,6 +2,7 @@ package services
 
 import (
 	"dyngo/config"
+	"dyngo/helpers"
 	"dyngo/helpers/ip"
 	"dyngo/logger"
 	"time"
@@ -72,33 +73,26 @@ func NewBaseServiceFromGeneric(name string, config config.GenericServiceConfigur
 }
 
 func getDomainsFromConfig(domains []config.DomainConfiguration) []*Domain {
-	var result []*Domain
+	activeDomains := helpers.Filter(domains, func(domain config.DomainConfiguration) bool {
+		return domain.V4 || domain.V6
+	})
 
-	for _, domain := range domains {
-		if domain.V4 {
-			result = append(result, &Domain{
-				Name:     domain.Name,
-				Protocol: ip.IPv4,
-				State: DomainState{
-					Current: "",
-					Target:  "",
-				},
-			})
-		}
+	return helpers.Map(activeDomains, func(domain config.DomainConfiguration) *Domain {
+		protocol := ip.IPv4
 
 		if domain.V6 {
-			result = append(result, &Domain{
-				Name:     domain.Name,
-				Protocol: ip.IPv6,
-				State: DomainState{
-					Current: "",
-					Target:  "",
-				},
-			})
+			protocol = ip.IPv6
 		}
-	}
 
-	return result
+		return &Domain{
+			Name:     domain.Name,
+			Protocol: protocol,
+			State: DomainState{
+				Current: "",
+				Target:  "",
+			},
+		}
+	})
 }
 
 func (service *BaseService) GetDomains() []*Domain {
