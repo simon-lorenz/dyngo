@@ -16,7 +16,7 @@ type DyngoConfiguration struct {
 }
 
 type ServicesConfiguration struct {
-	Generic []*GenericServiceConfiguration `yaml:"generic"`
+	Generic []*GenericServiceConfiguration `yaml:"generic" validate:"dive"`
 
 	Desec   *ServiceConfiguration `yaml:"desec"`
 	Porkbun *ServiceConfiguration `yaml:"porkbun"`
