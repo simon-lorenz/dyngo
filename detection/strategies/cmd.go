@@ -10,7 +10,7 @@ type CmdDetectionStrategy struct {
 	Command string
 }
 
-func NewCmdDetectionStrategy(Command string) DetectionStrategy {
+func NewCmdDetectionStrategy(Command string) IDetectionStrategy {
 	return &CmdDetectionStrategy{
 		BaseDetectionStrategy: NewBaseDetectionStrategy("cmd"),
 		Command:               Command,

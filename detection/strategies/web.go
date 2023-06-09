@@ -11,7 +11,7 @@ type WebStrategy struct {
 	URL string
 }
 
-func NewWebDetectionStrategy(URL string) DetectionStrategy {
+func NewWebDetectionStrategy(URL string) IDetectionStrategy {
 	return &WebStrategy{
 		BaseDetectionStrategy: NewBaseDetectionStrategy("web"),
 		URL:                   URL,

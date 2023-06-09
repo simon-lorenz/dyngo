@@ -96,7 +96,7 @@ func DetectIPAddress(protocol ip.InternetProtocol) (bool, error) {
 	}
 }
 
-func GetAvailableDetectionStrategies(protocol ip.InternetProtocol) []strategies.DetectionStrategy {
+func GetAvailableDetectionStrategies(protocol ip.InternetProtocol) []strategies.IDetectionStrategy {
 	var StrategiesForProtocol config.DetectionStrategies
 
 	if protocol == ip.IPv4 {
@@ -105,7 +105,7 @@ func GetAvailableDetectionStrategies(protocol ip.InternetProtocol) []strategies.
 		StrategiesForProtocol = config.Detection.Strategies.V6
 	}
 
-	AvailableStrategies := make([]strategies.DetectionStrategy, 0)
+	AvailableStrategies := make([]strategies.IDetectionStrategy, 0)
 
 	if StrategiesForProtocol.Web != "" {
 		AvailableStrategies = append(AvailableStrategies, strategies.NewWebDetectionStrategy(StrategiesForProtocol.Web))

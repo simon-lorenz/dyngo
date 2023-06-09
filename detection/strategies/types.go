@@ -2,7 +2,7 @@ package strategies
 
 import "dyngo/logger"
 
-type DetectionStrategy interface {
+type IDetectionStrategy interface {
 	Execute() string
 }
 
